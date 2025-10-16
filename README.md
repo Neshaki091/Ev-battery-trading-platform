@@ -17,7 +17,7 @@ ev-trade-platform/
 │ │ ├── search-service/
 │ │ ├── transaction-service/
 │ │ └── admin-service/
-│ ├── shared/
+│ ├── shared/ #middleware dùng chung 
 │ └── docker-compose.yml
 │
 ├── frontend/
