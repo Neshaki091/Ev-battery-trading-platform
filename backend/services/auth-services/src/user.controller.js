@@ -24,16 +24,19 @@ exports.getUserById = async (req, res) => {
     }   
 };
 exports.createUser = async (req, res) => {
-    const { username, email, password } = req.body; 
+    const { email, password } = req.body; 
     try {
         const userExists = await userschema.findOne({ email });
         if (userExists) {
             return res.status(400).json({ message: 'User already exists' });
         }
         const passwordHash = await bcrypt.hash(password, 10);
-        const newUser = new userschema({ username, email,});
+        const newUser = new userschema({email});
+        console.log('Creating user with data:', newUser);
         newUser.password = passwordHash;
+        console.log('Hashed password:', passwordHash);
         await newUser.save();
+        console.log('User created successfully:', newUser);
         res.status(201).json(newUser);
     } catch (error) {
         res.status(500).json({ message: 'Error creating user', error });
@@ -43,10 +46,11 @@ exports.createUser = async (req, res) => {
 exports.updateUser = async (req, res) => {
     const userId = req.params.id;
     const { username, email, password } = req.body; 
+    const hashedPassword = await bcrypt.hash(password, 10);
     try {
         const updatedUser = await userschema.findByIdAndUpdate(
             userId,
-            { username, email, password },
+            { username, email, hashedPassword },
             { new: true }
         );
         if (!updatedUser) {
@@ -98,6 +102,9 @@ exports.loginUser = async (req, res) => {
 
 exports.logoutUser = async (req, res) => {
     // In a real application, you would handle token invalidation or session destruction here.
+    const userId = req.body;
+    const refreshToken = await userschema.findById(userId).refreshTokens.token;
+    await deleteRefreshToken(userId, refreshToken);
     res.status(200).json({ message: 'Logout successful' });
 }
 
