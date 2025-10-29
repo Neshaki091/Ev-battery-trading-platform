@@ -22,7 +22,12 @@ class ReviewService {
     if (rating < 1 || rating > 5) {
       throw new Error('Rating must be between 1 and 5');
     }
-    return await reviewRepository.create({ userId, listingId, rating, content });
+    return await reviewRepository.create({
+      userId,
+      listingId,
+      rating,
+      content,
+    });
   }
 
   async updateReview(id, { rating, content }) {
@@ -60,7 +65,7 @@ class ReviewService {
     return {
       averageRating: stats._avg.rating || 0,
       totalReviews: stats._count.id || 0,
-      distribution
+      distribution,
     };
   }
 }
