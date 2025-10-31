@@ -1,4 +1,4 @@
-const prisma = require('../../prisma/client');
+import prisma from '../../prisma/client.js';
 
 class ReviewRepository {
   async findByUserId(userId) {
@@ -51,4 +51,4 @@ class ReviewRepository {
   }
 }
 
-module.exports = new ReviewRepository();
+export default new ReviewRepository();

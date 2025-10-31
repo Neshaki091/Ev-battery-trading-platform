@@ -1,5 +1,4 @@
-const reviewRepository = require('../repositories/review.repository');
-
+import reviewRepository from '../repositories/review.repository.js';
 class ReviewService {
   async getReviewsByUserId(userId) {
     if (!userId) {
@@ -70,4 +69,4 @@ class ReviewService {
   }
 }
 
-module.exports = new ReviewService();
+export default new ReviewService();

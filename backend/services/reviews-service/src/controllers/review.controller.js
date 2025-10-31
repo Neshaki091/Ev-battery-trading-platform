@@ -1,5 +1,4 @@
-const reviewService = require('../services/review.service');
-
+import reviewService from '../services/review.service.js';
 class ReviewController {
   // TODO : userID duoc luu o dau
   async getReviewsByUserId(req, res) {
@@ -96,4 +95,4 @@ class ReviewController {
   }
 }
 
-module.exports = new ReviewController();
+export default new ReviewController();

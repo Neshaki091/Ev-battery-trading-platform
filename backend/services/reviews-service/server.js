@@ -1,6 +1,6 @@
-const express = require('express');
-const prisma = require('./prisma/client');
-const reviewController = require('./src/controllers/review.controller');
+import express from 'express';
+import prisma from './prisma/client.js';
+import reviewController from './src/controllers/review.controller.js';
 
 const app = express();
 const port = process.env.PORT || 8000;
