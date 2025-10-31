@@ -1,0 +1,168 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: evbattery-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: evbattery@2024
+      MONGO_INITDB_DATABASE: evtrading_platform
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    networks:
+      - evbattery-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: evbattery-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - evbattery-network
+    command: redis-server --appendonly yes --requirepass evbattery@2024
+
+  # Transaction Service
+  transaction-service:
+    build:
+      context: ./services/transaction-service
+      dockerfile: Dockerfile
+    container_name: evbattery-transaction-service
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      MONGODB_URI: mongodb://admin:evbattery@2024@mongodb:27017/evtrading_platform?authSource=admin
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: evbattery@2024
+    volumes:
+      - ./services/transaction-service:/app
+      - /app/node_modules
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - evbattery-network
+
+  # Auth Service (TODO: implement)
+  # auth-service:
+  #   build:
+  #     context: ./services/auth-service
+  #     dockerfile: Dockerfile
+  #   container_name: evbattery-auth-service
+  #   restart: unless-stopped
+  #   ports:
+  #     - "3001:3001"
+  #   environment:
+  #     NODE_ENV: development
+  #     PORT: 3001
+  #     MONGODB_URI: mongodb://admin:evbattery@2024@mongodb:27017/evtrading_platform?authSource=admin
+  #   depends_on:
+  #     - mongodb
+  #     - redis
+  #   networks:
+  #     - evbattery-network
+
+  # Listing Service (TODO: implement)
+  # listing-service:
+  #   build:
+  #     context: ./services/listing-service
+  #     dockerfile: Dockerfile
+  #   container_name: evbattery-listing-service
+  #   restart: unless-stopped
+  #   ports:
+  #     - "3002:3002"
+  #   environment:
+  #     NODE_ENV: development
+  #     PORT: 3002
+  #     MONGODB_URI: mongodb://admin:evbattery@2024@mongodb:27017/evtrading_platform?authSource=admin
+  #   depends_on:
+  #     - mongodb
+  #     - redis
+  #   networks:
+  #     - evbattery-network
+
+  # Search Service (TODO: implement)
+  # search-service:
+  #   build:
+  #     context: ./services/search-service
+  #     dockerfile: Dockerfile
+  #   container_name: evbattery-search-service
+  #   restart: unless-stopped
+  #   ports:
+  #     - "3003:3003"
+  #   environment:
+  #     NODE_ENV: development
+  #     PORT: 3003
+  #     MONGODB_URI: mongodb://admin:evbattery@2024@mongodb:27017/evtrading_platform?authSource=admin
+  #   depends_on:
+  #     - mongodb
+  #     - redis
+  #   networks:
+  #     - evbattery-network
+
+  # Admin Service (TODO: implement)
+  # admin-service:
+  #   build:
+  #     context: ./services/admin-service
+  #     dockerfile: Dockerfile
+  #   container_name: evbattery-admin-service
+  #   restart: unless-stopped
+  #   ports:
+  #     - "3004:3004"
+  #   environment:
+  #     NODE_ENV: development
+  #     PORT: 3004
+  #     MONGODB_URI: mongodb://admin:evbattery@2024@mongodb:27017/evtrading_platform?authSource=admin
+  #   depends_on:
+  #     - mongodb
+  #     - redis
+  #   networks:
+  #     - evbattery-network
+
+  # API Gateway (TODO: implement)
+  # gateway:
+  #   build:
+  #     context: ./gateway
+  #     dockerfile: Dockerfile
+  #   container_name: evbattery-gateway
+  #   restart: unless-stopped
+  #   ports:
+  #     - "4000:4000"
+  #   environment:
+  #     NODE_ENV: development
+  #     PORT: 4000
+  #     AUTH_SERVICE_URL: http://auth-service:3001
+  #     LISTING_SERVICE_URL: http://listing-service:3002
+  #     SEARCH_SERVICE_URL: http://search-service:3003
+  #     TRANSACTION_SERVICE_URL: http://transaction-service:3000
+  #     ADMIN_SERVICE_URL: http://admin-service:3004
+  #   depends_on:
+  #     - transaction-service
+  #   networks:
+  #     - evbattery-network
+
+volumes:
+  mongodb_data:
+    driver: local
+  mongodb_config:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  evbattery-network:
+    driver: bridge
+
