@@ -59,7 +59,12 @@ class ReviewController {
       });
     } catch (error) {
       console.error('Error updating review:', error);
-      const statusCode = error.message.includes('Invalid') ? 404 : error.message.includes('must be') ? 400 : 500;
+      const statusCode =
+        error.message.includes('Invalid') || error.message.includes('not found')
+          ? 404
+          : error.message.includes('must be')
+          ? 400
+          : 500;
       res.status(statusCode).json({ success: false, message: error.message });
     }
   }
@@ -74,7 +79,7 @@ class ReviewController {
       });
     } catch (error) {
       console.error('Error deleting review:', error);
-      const statusCode = error.message === 'Review not found' ? 404 : error.message === 'Invalid' ? 400 : 500;
+      const statusCode = error.message === 'Review not found' ? 404 : error.message.includes('Invalid') ? 400 : 500;
       res.status(statusCode).json({ success: false, message: error.message });
     }
   }

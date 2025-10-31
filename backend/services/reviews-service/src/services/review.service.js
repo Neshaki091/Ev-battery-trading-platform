@@ -39,7 +39,15 @@ class ReviewService {
     const updateData = {};
     if (rating !== undefined) updateData.rating = rating;
     if (content !== undefined) updateData.content = content;
-    return await reviewRepository.update(id, updateData);
+
+    try {
+      return await reviewRepository.update(id, updateData);
+    } catch (error) {
+      if (error.code === 'P2025') {
+        throw new Error('Review not found');
+      }
+      throw error;
+    }
   }
 
   async deleteReview(id) {
