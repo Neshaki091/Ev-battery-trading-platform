@@ -1,4 +1,4 @@
-const Listing = require("../models/modelslisting.model");
+const Listing = require("./models/modelslisting.model");
 
 // Lấy tất cả danh sách
 exports.getAllListings = async (req, res) => {
@@ -22,7 +22,8 @@ exports.getListingById = async(req,res) => {
 exports.createListing = async (req, res) => {
   try {
     const listing = new Listing(req.body);
-    const savedListing = await listing.save();
+    const newlisting = new Listing(listing);
+    const savedListing = await newlisting.save();
     res.status(201).json({
       message: "Listing created successfully",
       data: savedListing,

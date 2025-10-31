@@ -4,9 +4,6 @@ const ListingSchema = new mongoose.Schema(
   {
     listing_id: {
       type: String,
-      unique: true,
-      required: true,
-      trim: true,
     },
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
@@ -50,7 +47,7 @@ const ListingSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ["House", "Apartment", "Land", "Vehicle", "Battery", "Other"],
+      enum: ["Vehicle", "Battery", "Other"],
       default: "Other",
     },
     images: [
@@ -61,13 +58,5 @@ const ListingSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-// Tự sinh listing_id nếu chưa có
-ListingSchema.pre("save", function (next) {
-  if (!this.listing_id) {
-    this.listing_id = "LIST-" + Date.now().toString(36).toUpperCase();
-  }
-  next();
-});
 
 module.exports = mongoose.model("Listing", ListingSchema);

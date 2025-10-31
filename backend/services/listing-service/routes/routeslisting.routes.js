@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const listingController = require("../controllers/controllerslisting.controller");
+const listingController = require("./controllers/controllerslisting.controller");
 router.get("/", listingController.getAllListings);
 
 // 🟢 Lấy tin đăng theo ID
