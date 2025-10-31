@@ -1,7 +1,7 @@
 import express from 'express';
 import prisma from './prisma/client.js';
 import reviewController from './src/controllers/review.controller.js';
-
+import reportController from './src/controllers/report.controller.js';
 const app = express();
 const port = process.env.PORT || 8000;
 
@@ -24,11 +24,18 @@ app.get('/health', async (req, res) => {
   }
 });
 
+// Review Routes
 app.get('/api/reviews/user/:userId', reviewController.getReviewsByUserId);
 app.get('/api/reviews/listing/:listingId', reviewController.getReviewsByListingId);
 app.post('/api/reviews', reviewController.createReview);
 app.put('/api/reviews/:id', reviewController.updateReview);
 app.delete('/api/reviews/:id', reviewController.deleteReview);
+// Report Routes
+app.get('/api/reports', reportController.getAllReports);
+app.get('/api/reports/user/:userId', reportController.getReportsByUserId);
+app.post('/api/reports', reportController.createReport);
+app.put('/api/reports/:id', reportController.updateReportStatus);
+app.delete('/api/reports/:id', reportController.deleteReport);
 
 const startServer = async () => {
   try {

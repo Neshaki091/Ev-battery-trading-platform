@@ -42,7 +42,7 @@ enum ReportStatus {
   REJECTED
 }
 model Reports {
-  id         String   @id @default(uuid())
+  id         String   @id @default(cuid())
   reporterId String
   subjectType ReportSubjectType
   subjectId   String
