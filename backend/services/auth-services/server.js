@@ -16,11 +16,11 @@ connectDB();
 app.get('/users', getAllUsers);
 app.get('/users/:id', getUserById);
 app.post('/users', createUser);
-app.put('/users/:id', updateUser);
+app.put('/users/:id', updateUser);//lỗi
 app.delete('/users/:id', deleteUser);
-app.post('/users/login', loginUser);
-app.post('/users/logout', logoutUser);
-app.post('/users/change-password', changePassword);
+app.post('/users/login', loginUser);  
+app.post('/users/logout', logoutUser);//lỗi
+app.post('/users/change-password', changePassword);//lỗi
 
 app.listen(PORT, () => {
     console.log(`Auth service is running on port ${PORT}`);

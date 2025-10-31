@@ -24,9 +24,13 @@ exports.getUserById = async (req, res) => {
     }   
 };
 exports.createUser = async (req, res) => {
-    const { email, password } = req.body; 
+    const { email, password, phonenumber } = req.body; 
     try {
+        if (!email || !password || !phonenumber) {
+            return res.status(400).json({ message: 'Email, password, and phone number are required' });
+        }
         const userExists = await userschema.findOne({ email });
+
         if (userExists) {
             return res.status(400).json({ message: 'User already exists' });
         }
@@ -34,6 +38,7 @@ exports.createUser = async (req, res) => {
         const newUser = new userschema({email});
         console.log('Creating user with data:', newUser);
         newUser.password = passwordHash;
+        newUser.phonenumber = phonenumber;
         console.log('Hashed password:', passwordHash);
         await newUser.save();
         console.log('User created successfully:', newUser);
@@ -45,12 +50,12 @@ exports.createUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
     const userId = req.params.id;
-    const { username, email, password } = req.body; 
+    const { username, email, password, phonenumber } = req.body; 
     const hashedPassword = await bcrypt.hash(password, 10);
     try {
         const updatedUser = await userschema.findByIdAndUpdate(
             userId,
-            { username, email, hashedPassword },
+            { username, email, hashedPassword, phonenumber },
             { new: true }
         );
         if (!updatedUser) {
