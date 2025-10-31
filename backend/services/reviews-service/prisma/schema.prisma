@@ -11,9 +11,9 @@ datasource db {
 }
 
 model Review {
-  id         Int      @id @default(autoincrement())
-  listingId  Int
-  userId     Int
+  id         String   @id @default(uuid())
+  listingId  String
+  userId     String
   rating     Int      @db.SmallInt
   content    String?  @db.Text
   createdAt  DateTime @default(now())
@@ -21,3 +21,37 @@ model Review {
 
   @@index([userId, listingId])
 }
+
+
+enum ReportSubjectType {
+  REVIEW
+  LISTING
+  USER
+}
+
+enum ReportReasonCode {
+  SPAM
+  INAPPROPRIATE_CONTENT
+  HARASSMENT
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  RESOLVED
+  REJECTED
+}
+model Reports {
+  id         String   @id @default(uuid())
+  reporterId String
+  subjectType ReportSubjectType
+  subjectId   String
+  reasonCode  ReportReasonCode
+  details     String?  @db.Text
+  status      ReportStatus @default(PENDING)
+  resolverId  String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  @@index([subjectId])
+}
+
