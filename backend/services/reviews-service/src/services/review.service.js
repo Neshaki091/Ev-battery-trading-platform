@@ -2,21 +2,21 @@ const reviewRepository = require('../repositories/review.repository');
 
 class ReviewService {
   async getReviewsByUserId(userId) {
-    if (!userId || isNaN(userId)) {
+    if (!userId) {
       throw new Error('Invalid userId');
     }
-    return await reviewRepository.findByUserId(parseInt(userId));
+    return await reviewRepository.findByUserId(userId);
   }
 
   async getReviewsByListingId(listingId) {
-    if (!listingId || isNaN(listingId)) {
+    if (!listingId) {
       throw new Error('Invalid listingId');
     }
-    return await reviewRepository.findByListingId(parseInt(listingId));
+    return await reviewRepository.findByListingId(listingId);
   }
 
   async createReview({ userId, listingId, rating, content }) {
-    if (!userId || isNaN(userId) || !listingId || isNaN(listingId) || !rating || isNaN(rating)) {
+    if (!userId || !listingId || !rating) {
       throw new Error('user_id, product_id, and rating are required');
     }
     if (rating < 1 || rating > 5) {
@@ -31,7 +31,7 @@ class ReviewService {
   }
 
   async updateReview(id, { rating, content }) {
-    if (!id || isNaN(id)) {
+    if (!id) {
       throw new Error('Invalid review id');
     }
     if (rating && (rating < 1 || rating > 5)) {
@@ -40,15 +40,15 @@ class ReviewService {
     const updateData = {};
     if (rating !== undefined) updateData.rating = rating;
     if (content !== undefined) updateData.content = content;
-    return await reviewRepository.update(parseInt(id), updateData);
+    return await reviewRepository.update(id, updateData);
   }
 
   async deleteReview(id) {
-    if (!id || isNaN(id)) {
+    if (!id) {
       throw new Error('Invalid review id');
     }
     try {
-      return await reviewRepository.delete(parseInt(id));
+      return await reviewRepository.delete(id);
     } catch (error) {
       if (error.code === 'P2025') {
         throw new Error('Review not found');
@@ -58,7 +58,7 @@ class ReviewService {
   }
 
   async getReviewStats(listingId) {
-    if (!listingId || isNaN(listingId)) {
+    if (!listingId) {
       throw new Error('Invalid listing id');
     }
     const { stats, distribution } = await reviewRepository.getStats(parseInt(listingId));

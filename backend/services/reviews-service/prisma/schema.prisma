@@ -11,7 +11,7 @@ datasource db {
 }
 
 model Review {
-  id         String   @id @default(uuid())
+  id         String   @id @default(cuid())
   listingId  String
   userId     String
   rating     Int      @db.SmallInt
