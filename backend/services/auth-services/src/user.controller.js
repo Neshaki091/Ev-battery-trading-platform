@@ -1,14 +1,14 @@
-const {generateRefreshToken, generateAccessToken} = require('../util/refreshToken');
+const { generateRefreshToken, generateAccessToken } = require('../util/refreshToken');
 const userschema = require('../models/user.model');
 const bcrypt = require('bcrypt');
 
 exports.getAllUsers = async (req, res) => {
     try {
-        const users = await userschema.find();  
+        const users = await userschema.find();
         res.status(200).json(users);
     } catch (error) {
         res.status(500).json({ message: 'Error retrieving users', error });
-    }   
+    }
 };
 
 exports.getUserById = async (req, res) => {
@@ -21,19 +21,24 @@ exports.getUserById = async (req, res) => {
         res.status(200).json(user);
     } catch (error) {
         res.status(500).json({ message: 'Error retrieving user', error });
-    }   
+    }
 };
 exports.createUser = async (req, res) => {
-    const { email, password } = req.body; 
+    const { email, password, phonenumber } = req.body;
     try {
+        if (!email || !password || !phonenumber) {
+            return res.status(400).json({ message: 'Email, password, and phone number are required' });
+        }
         const userExists = await userschema.findOne({ email });
+
         if (userExists) {
             return res.status(400).json({ message: 'User already exists' });
         }
         const passwordHash = await bcrypt.hash(password, 10);
-        const newUser = new userschema({email});
+        const newUser = new userschema({ email });
         console.log('Creating user with data:', newUser);
         newUser.password = passwordHash;
+        newUser.phonenumber = phonenumber;
         console.log('Hashed password:', passwordHash);
         await newUser.save();
         console.log('User created successfully:', newUser);
@@ -45,12 +50,12 @@ exports.createUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
     const userId = req.params.id;
-    const { username, email, password } = req.body; 
+    const { username, email, password, phonenumber } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
     try {
         const updatedUser = await userschema.findByIdAndUpdate(
             userId,
-            { username, email, hashedPassword },
+            { username, email, hashedPassword, phonenumber },
             { new: true }
         );
         if (!updatedUser) {
@@ -72,15 +77,16 @@ exports.deleteUser = async (req, res) => {
         res.status(200).json({ message: 'User deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Error deleting user', error });
-    }   
+    }
 };
 
 exports.loginUser = async (req, res) => {
     const { email, password } = req.body;
     console.log(email, password);
     try {
-        const user = await userschema
-            .findOne({ email});
+        await OwnerSchema.findOne({
+            "profile.email": email
+        });
         if (!user) {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
@@ -93,8 +99,8 @@ exports.loginUser = async (req, res) => {
         console.log(accessToken);
         await addRefreshToken(user._id, refreshToken);
         console.log('User logged in:', user);
-        
-        res.status(200).json({ message: 'Login successful', user,});
+
+        res.status(200).json({ message: 'Login successful', user, });
     } catch (error) {
         res.status(500).json({ message: 'Error during login', error });
     }
@@ -115,29 +121,29 @@ exports.changePassword = async (req, res) => {
         const user = await userschema.findById(userId);
         if (!user || user.password !== oldPassword) {
             return res.status(401).json({ message: 'Invalid old password' });
-        }   
+        }
         user.password = newPassword;
         await user.save();
         res.status(200).json({ message: 'Password changed successfully' });
     }
     catch (error) {
         res.status(500).json({ message: 'Error changing password', error });
-    }   
+    }
 };
 
 const addRefreshToken = async (userId, newToken) => {
     console.log('Adding refresh token for user:', userId);
-  await userschema.findByIdAndUpdate(
-    userId,
-    { $push: { refreshTokens: { token: newToken } } },
-    { new: true } // trả về user mới sau khi update
-  );
-  console.log('Refresh token added:', newToken);
+    await userschema.findByIdAndUpdate(
+        userId,
+        { $push: { refreshTokens: { token: newToken } } },
+        { new: true } // trả về user mới sau khi update
+    );
+    console.log('Refresh token added:', newToken);
 };
 const deleteRefreshToken = async (userId, newToken) => {
-  await userschema.findByIdAndUpdate(
-    userId,
-    { $pull: { refreshTokens: { token: newToken } } },
-    { new: true } // trả về user mới sau khi update
-  );
+    await userschema.findByIdAndUpdate(
+        userId,
+        { $pull: { refreshTokens: { token: newToken } } },
+        { new: true } // trả về user mới sau khi update
+    );
 };
