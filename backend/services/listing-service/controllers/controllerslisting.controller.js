@@ -1,4 +1,4 @@
-const Listing = require("./models/modelslisting.model");
+const Listing = require("../models/modelslisting.model");
 
 // Lấy tất cả danh sách
 exports.getAllListings = async (req, res) => {
