@@ -1,13 +1,60 @@
-const { generateRefreshToken, generateAccessToken } = require('../util/refreshToken');
+const { generateRefreshToken, generateAccessToken, addUserRefreshToken, deleteUserRefreshToken, getUserRefreshToken } = require('../util/refreshToken');
 const userschema = require('../models/user.model');
 const bcrypt = require('bcrypt');
 
 exports.getAllUsers = async (req, res) => {
     try {
         const users = await userschema.find();
+        if (!users || users.length === 0) {
+            return res.status(403).json({ message: 'No users found' });
+        }
+
         res.status(200).json(users);
     } catch (error) {
         res.status(500).json({ message: 'Error retrieving users', error });
+    }
+};
+
+
+exports.getAllUsersProfiles = async (req, res) => {
+    try {
+        const users = await userschema.find();
+        if (!users || users.length === 0) {
+            return res.status(403).json({ message: 'No users found' });
+        }
+
+        res.status(200).json(users.map(u => ({
+            profile: u.profile,
+            macthedProfiles: u.macthedProfiles
+        })));
+
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving users', error });
+    }
+};
+exports.getMe = async (req, res) => {
+    try {
+        const userId = req.user?._id;
+        if (!userId) {
+            return res.status(400).json({ message: "Missing user ID in token" });
+        }
+
+        const user = await userschema.findById(userId).select("_id profile macthedProfiles");
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.status(200).json({
+            user_id: user._id,
+            profile: user.profile,
+            macthedProfiles: user.macthedProfiles
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Error retrieving user",
+            error: error.message
+        });
     }
 };
 
@@ -18,27 +65,29 @@ exports.getUserById = async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        res.status(200).json(user);
+        res.status(200).json({ user_id: user._id, userprofile: user.profile, macthedProfiles: user.macthedProfiles });
     } catch (error) {
         res.status(500).json({ message: 'Error retrieving user', error });
     }
 };
 exports.createUser = async (req, res) => {
-    const { email, password, phonenumber } = req.body;
+    const { phonenumber, email, password } = req.body;
     try {
-        if (!email || !password || !phonenumber) {
-            return res.status(400).json({ message: 'Email, password, and phone number are required' });
-        }
-        const userExists = await userschema.findOne({ email });
 
+        const userExists = await userschema.findOne({ "profile.email": email });
+        if (!phonenumber) {
+            return res.status(401).json({ message: 'phone number is not in request' })
+        }
         if (userExists) {
             return res.status(400).json({ message: 'User already exists' });
         }
         const passwordHash = await bcrypt.hash(password, 10);
-        const newUser = new userschema({ email });
+        const newUser = new userschema({
+            profile: { email, phonenumber },
+            password: passwordHash
+        });
         console.log('Creating user with data:', newUser);
         newUser.password = passwordHash;
-        newUser.phonenumber = phonenumber;
         console.log('Hashed password:', passwordHash);
         await newUser.save();
         console.log('User created successfully:', newUser);
@@ -50,22 +99,39 @@ exports.createUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
     const userId = req.params.id;
-    const { username, email, password, phonenumber } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
+    let { username, email } = req.body;
+    const user = req.user
     try {
+        if (!email) {
+            email = user.profile.email
+            console.log(email);
+        }
+        if (!username) {
+            username = user.profile.username
+            console.log(username);
+        }
+        let updateData = {
+            "profile.username": username,
+            "profile.email": email
+        };
         const updatedUser = await userschema.findByIdAndUpdate(
             userId,
-            { username, email, hashedPassword, phonenumber },
+            updateData,
             { new: true }
         );
         if (!updatedUser) {
             return res.status(404).json({ message: 'User not found' });
         }
-        res.status(200).json(updatedUser);
+        res.status(200).json({
+            message: 'User updated successfully',
+            profile: updatedUser.profile,
+            macthedProfiles: updatedUser.macthedProfiles
+        });
     } catch (error) {
         res.status(500).json({ message: 'Error updating user', error });
     }
 };
+
 
 exports.deleteUser = async (req, res) => {
     const userId = req.params.id;
@@ -82,35 +148,30 @@ exports.deleteUser = async (req, res) => {
 
 exports.loginUser = async (req, res) => {
     const { email, password } = req.body;
-    console.log(email, password);
     try {
-        await OwnerSchema.findOne({
-            "profile.email": email
-        });
+        const user = await userschema
+            .findOne({ "profile.email": email });
         if (!user) {
-            return res.status(401).json({ message: 'Invalid email or password' });
+            return res.status(401).json({ message: 'Account is not exist' });
         }
         if (!await bcrypt.compare(password, user.password)) {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
         const refreshToken = generateRefreshToken(user._id);
         const accessToken = generateAccessToken(user._id);
-        console.log(refreshToken);
-        console.log(accessToken);
-        await addRefreshToken(user._id, refreshToken);
-        console.log('User logged in:', user);
+        await addUserRefreshToken(user._id, refreshToken, accessToken);
+        console.log('User logged in:', user.profile, user.macthedProfiles, accessToken);
 
-        res.status(200).json({ message: 'Login successful', user, });
+        res.status(200).json({ message: 'Login successful', user_id: user._id, user: user.profile, macthedProfiles: user.macthedProfiles, accessToken: accessToken, });
     } catch (error) {
         res.status(500).json({ message: 'Error during login', error });
     }
 };
 
 exports.logoutUser = async (req, res) => {
-    // In a real application, you would handle token invalidation or session destruction here.
-    const userId = req.body;
-    const refreshToken = await userschema.findById(userId).refreshTokens.token;
-    await deleteRefreshToken(userId, refreshToken);
+    const userId = req.user._id;
+    const accessToken = req.headers.authorization;
+    await deleteUserRefreshToken(userId, accessToken);
     res.status(200).json({ message: 'Logout successful' });
 }
 
@@ -119,31 +180,16 @@ exports.changePassword = async (req, res) => {
     const { oldPassword, newPassword } = req.body;
     try {
         const user = await userschema.findById(userId);
-        if (!user || user.password !== oldPassword) {
-            return res.status(401).json({ message: 'Invalid old password' });
-        }
-        user.password = newPassword;
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) return res.status(401).json({ message: 'Invalid old password' });
+
+        user.password = await bcrypt.hash(newPassword, 10);
         await user.save();
         res.status(200).json({ message: 'Password changed successfully' });
-    }
-    catch (error) {
+    } catch (error) {
         res.status(500).json({ message: 'Error changing password', error });
     }
 };
 
-const addRefreshToken = async (userId, newToken) => {
-    console.log('Adding refresh token for user:', userId);
-    await userschema.findByIdAndUpdate(
-        userId,
-        { $push: { refreshTokens: { token: newToken } } },
-        { new: true } // trả về user mới sau khi update
-    );
-    console.log('Refresh token added:', newToken);
-};
-const deleteRefreshToken = async (userId, newToken) => {
-    await userschema.findByIdAndUpdate(
-        userId,
-        { $pull: { refreshTokens: { token: newToken } } },
-        { new: true } // trả về user mới sau khi update
-    );
-};

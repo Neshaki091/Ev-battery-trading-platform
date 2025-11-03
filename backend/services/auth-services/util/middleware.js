@@ -5,8 +5,7 @@ dotenv.config();
 
 exports.authmiddleware = async (req, res, next) => {
     try {
-        const algorithm = req.headers['authorization'].split(' ')[0];
-        const token = req.headers['authorization'].split(' ')[1];
+        const token = req.headers.authorization.split(' ')[1];
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const user = await userschema.findById(decoded.id);
         if (!user) {

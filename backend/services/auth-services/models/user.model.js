@@ -1,12 +1,13 @@
 const mongoose = require('mongoose');
+const tokenSchema = require('./token.model');
 const userSchema = new mongoose.Schema({
     profile: {
         username: { type: String, default: '' },
-        email: { type: String, required: true },
+        email: { type: String, required: true, unique: true},
         createdAt: { type: Date, default: Date.now },
         phonenumber: { type: String, required: true, unique: true },
     },
-    password: { type: String },
+    password: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
     role: { type: String, enum: ['user', 'admin', 'guest'], default: 'user' },
     Tokens: [tokenSchema],

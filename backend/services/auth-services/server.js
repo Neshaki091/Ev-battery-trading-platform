@@ -5,7 +5,9 @@ const cors = require('cors');
 const connectDB = require('./util/connectdb');
 dotenv.config();
 
-const {getAllUsers, getUserById, createUser, updateUser, deleteUser, changePassword, loginUser, logoutUser} = require('./src/user.controller');
+const {getAllUsers, getAllUsersProfiles, getUserById,getMe, createUser, updateUser, deleteUser, changePassword, loginUser, logoutUser} = require('./src/user.controller');
+const { authmiddleware } = require('./util/middleware');
+const {allowAdminRole, deleteUserRole} = require("./util/rule")
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -13,14 +15,15 @@ app.use(cors());
 
 app.use(express.json());
 connectDB();
-app.get('/users', getAllUsers);
-app.get('/users/:id', getUserById);
+app.get('/users',authmiddleware,allowAdminRole, getAllUsers);
+app.get('/usersprofile', getAllUsersProfiles )
+app.get('/userprofile/:id', getUserById);
 app.post('/users', createUser);
-app.put('/users/:id', updateUser);
-app.delete('/users/:id', deleteUser);
+app.put('/users/:id',authmiddleware, updateUser);
+app.delete('/users/:id',authmiddleware, deleteUser);
 app.post('/users/login', loginUser);
-app.post('/users/logout', logoutUser);
-app.post('/users/change-password', changePassword);
+app.post('/users/logout',authmiddleware,deleteUser, logoutUser);
+app.post('/users/:id/change-password',authmiddleware, changePassword);
 
 app.listen(PORT, () => {
     console.log(`Auth service is running on port ${PORT}`);
