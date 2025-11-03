@@ -2,9 +2,6 @@ const mongoose = require("mongoose");
 
 const ListingSchema = new mongoose.Schema(
   {
-    listing_id: {
-      type: String,
-    },
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
