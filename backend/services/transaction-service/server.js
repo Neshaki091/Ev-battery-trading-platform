@@ -9,6 +9,7 @@ const mongoose = require('mongoose');
 
 // Import routes
 const orderRoutes = require('./routes/orders');
+const cassoWebhookRoutes = require('./routes/cassoWebhook');
 
 // Import models
 require('./models/schemas/User');
@@ -23,16 +24,20 @@ const mongoURI = process.env.MONGODB_URI || 'mongodb+srv://tranvantai:14122004@c
 
 mongoose.connect(mongoURI)
   .then(() => {
-    console.log('✅ Kết nối MongoDB thành công!');
-    console.log(`📊 Database: ${mongoose.connection.name}`);
+    console.log('Kết nối MongoDB thành công!');
+    console.log(`Database: ${mongoose.connection.name}`);
   })
   .catch(err => {
-    console.error('❌ Lỗi kết nối MongoDB:', err.message);
+    console.error('Lỗi kết nối MongoDB:', err.message);
     process.exit(1);
   });
 
 // Middleware
-app.use(bodyParser.json());
+app.use(bodyParser.json({
+  verify: (req, res, buf) => {
+    req.rawBody = buf.toString();
+  }
+}));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // CORS
@@ -66,6 +71,7 @@ app.get('/', (req, res) => {
 
 // Routes
 app.use('/orders', orderRoutes);
+app.use('/webhooks/casso', cassoWebhookRoutes);
 
 // 404 handler
 app.use((req, res) => {
@@ -78,7 +84,7 @@ app.use((req, res) => {
 
 // Error handler
 app.use((err, req, res, next) => {
-  console.error('❌ Server error:', err.stack);
+  console.error(' Server error:', err.stack);
   res.status(500).json({
     success: false,
     error: 'Lỗi server',
@@ -87,27 +93,3 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-app.listen(port, () => {
-  console.log('');
-  console.log('═══════════════════════════════════════════════');
-  console.log(' Transaction Service - Xử lý Giao dịch');
-  console.log('═══════════════════════════════════════════════');
-  console.log(`📍 URL: http://localhost:${port}`);
-  console.log(`⚡ Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log('');
-  console.log(' Chức năng:');
-  console.log(' 1️⃣  Tạo order (mua hàng)');
-  console.log('  2️⃣  Thanh toán');
-  console.log('  3️⃣  Tạo hợp đồng PDF');
-  console.log('');
-  console.log(' API Endpoints:');
-  console.log('  - POST   /orders                  Tạo order mua hàng');
-  console.log('  - POST   /orders/:id/payment      Thanh toán order');
-  console.log('  - GET    /orders/:id/contract     Tải hợp đồng PDF');
-  console.log('  - GET    /orders/user/:userId     Danh sách order của user');
-  console.log('  - GET    /                        Service info');
-  console.log('');
-  console.log(' Note: Listing (tin đăng) thuộc listing-service');
-  console.log('═══════════════════════════════════════════════');
-  console.log('');
-});

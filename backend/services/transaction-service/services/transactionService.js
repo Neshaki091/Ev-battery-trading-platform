@@ -54,11 +54,41 @@ const getTransactionsByUser = async (userId) => {
   return await Transaction.find({ userId: new mongoose.Types.ObjectId(userId) }).sort({ createdAt: -1 });
 };
 
+const markTransactionPaidFromCasso = async ({ orderId, payment }) => {
+  const transaction = await Transaction.findById(orderId);
+
+  if (!transaction) {
+    throw new Error('Không tìm thấy giao dịch từ mã order trong webhook Casso');
+  }
+
+  if (transaction.status === 'cancelled') {
+    throw new Error('Giao dịch đã bị hủy, không thể cập nhật thanh toán');
+  }
+
+  const paidAt = payment.paidAt ? new Date(payment.paidAt) : new Date();
+
+  transaction.status = 'paid';
+  transaction.paidAt = paidAt;
+  transaction.cassoPayment = {
+    transId: payment.transId,
+    description: payment.description,
+    amount: payment.amount,
+    bankCode: payment.bankCode,
+    paidAt,
+    raw: payment.raw
+  };
+
+  await transaction.save();
+
+  return transaction;
+};
+
 module.exports = {
   createTransaction,
   getTransactionById,
   processPayment,
-  getTransactionsByUser
+  getTransactionsByUser,
+  markTransactionPaidFromCasso
 };
 
 

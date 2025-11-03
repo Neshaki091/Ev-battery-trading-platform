@@ -12,6 +12,14 @@ const transactionSchema = new mongoose.Schema({
   type: { type: String, enum: ['xe', 'pin'], required: true },
   status: { type: String, enum: ['pending', 'paid', 'completed', 'cancelled'], default: 'pending' },
   paidAt: { type: Date },
+  cassoPayment: {
+    transId: { type: String },
+    description: { type: String },
+    amount: { type: Number },
+    bankCode: { type: String },
+    paidAt: { type: Date },
+    raw: { type: mongoose.Schema.Types.Mixed }
+  },
   createdAt: { type: Date, default: Date.now }
 }, { timestamps: true });
 

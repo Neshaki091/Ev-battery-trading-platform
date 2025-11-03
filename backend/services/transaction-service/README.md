@@ -16,6 +16,7 @@
 transaction-service/
 ├── controllers/
 │   └── orderController.js      # Xử lý HTTP requests
+│   └── cassoController.js      # Webhook Casso
 ├── services/
 │   └── transactionService.js   # Business logic giao dịch
 ├── models/schemas/
@@ -23,7 +24,8 @@ transaction-service/
 │   ├── Listing.js             # Reference only
 │   └── Transaction.js
 ├── routes/
-│   └── orders.js
+│   ├── orders.js
+│   └── cassoWebhook.js
 ├── utils/
 │   └── pdfGenerator.js
 └── server.js
@@ -136,6 +138,30 @@ curl http://localhost:3000/orders/user/507f1f77bcf86cd799439011
 }
 ```
 
+### 5. Webhook Casso tự động cập nhật thanh toán
+
+- Endpoint: `POST http://localhost:3000/webhooks/casso`
+- Header bắt buộc: `x-casso-signature` chứa HMAC SHA256 của raw body (secret = `CASSO_WEBHOOK_SECRET`)
+- Nội dung chuyển khoản cần chứa `ORDER#<orderId>` để tự map giao dịch
+
+```bash
+curl -X POST http://localhost:3000/webhooks/casso \
+  -H "Content-Type: application/json" \
+  -H "x-casso-signature: <HMAC>" \
+  -d '{
+    "data": [
+      {
+        "id": "trans_123",
+        "amount": 50000000,
+        "description": "Thanh toan ORDER#673abc987654321fedcba000",
+        "bank_short_name": "VCB"
+      }
+    ]
+  }'
+```
+
+**Kết quả:** Status 200 nếu có ít nhất một order khớp. Các trường `data` trả về mô tả bản ghi thành công/thất bại.
+
 ## 🔄 Flow hoàn chỉnh
 
 ```
@@ -201,6 +227,7 @@ console.log(transaction.status); // 'paid'
 PORT=3000
 MONGODB_URI=mongodb://...
 NODE_ENV=development
+CASSO_WEBHOOK_SECRET=...
 ```
 
 ### Docker
