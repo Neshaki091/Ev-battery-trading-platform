@@ -47,6 +47,8 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: evbattery@2024
+      CASSO_WEBHOOK_SECRET: AK_CS.0e4f5550b87511f098dc7bf09fa7a682.bJ1EcxqWCAt1URDCslpPphgzPINPsryRr7eYDHf3snoHAN3VRthhAYam9fiJ7GIugULFGMUv
+      
     volumes:
       - ./services/transaction-service:/app
       - /app/node_modules
