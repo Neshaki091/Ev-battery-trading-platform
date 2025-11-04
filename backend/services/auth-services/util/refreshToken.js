@@ -25,9 +25,10 @@ const addUserRefreshToken = async (userId, refreshToken, accessToken) => {
     );
 }
 const deleteUserRefreshToken = async (userId, accessToken) => {
+    const token = accessToken.split(' ')[1];
     await userschema.findByIdAndUpdate(
         userId,
-        { $pull: {Tokens: { accessToken: accessToken } } },
+        { $pull: {Tokens: { accessToken: token } } },
         { new: true } // trả về user mới sau khi update
     );
 }
