@@ -22,7 +22,7 @@ exports.getListingById = async(req,res) => {
 exports.createListing = async (req, res) => {
   try {
     const listing = new Listing(req.body);
-    const newlisting = new Listing(listing);
+    // co cung duoc khong co cung duoc const newlisting = new Listing(listing);
     const savedListing = await newlisting.save();
     res.status(201).json({
       message: "Listing created successfully",
