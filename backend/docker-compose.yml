@@ -1,170 +1,68 @@
-version: '3.8'
-
 services:
-  # MongoDB Database
+  # 1. RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"  # Cổng giao tiếp cho service
+      - "15672:15672" # Cổng giao diện web (guest/guest)
+    
+  # 2. Auth Service
+  auth-service:
+    build: ./services/auth-services        # Tìm Dockerfile trong thư mục auth-service
+    env_file: ./services/auth-services/.env # Tải file .env của service
+    ports:
+      - "3000:3000"               # Mở port 3000
+    depends_on:
+      - rabbitmq                  # Khởi động sau rabbitmq
+
+  # 3. Listing Service
+  listing-service:
+    build: ./services/listing-service
+    env_file: ./services/listing-service/.env
+    ports:
+      - "5000:5000"
+    depends_on:
+      - rabbitmq
+
+  # 4. Search Service
+  search-service:
+    build: ./services/search-service
+    env_file: ./services/search-service/.env
+    ports:
+      - "8004:8004"
+    depends_on:
+      - rabbitmq
+
+  # 5. Review Service
+  review-service:
+    build: ./services/reviews-service
+    env_file: ./services/reviews-service/.env
+    ports:
+      - "8000:8000"
+
+  # 6. Transaction Service
+  transaction-service:
+    build: ./services/transaction-service
+    env_file: ./services/transaction-service/.env
+    ports:
+      - "3001:3001" # Dùng port 3001
+      
+  # 7. Nginx (API Gateway)
+  nginx:
+    build: ./services/API-Gateway/nginx                # Tìm Dockerfile trong thư mục nginx
+    ports:
+      - "8080:80"                 # Client sẽ gọi cổng 8080
+    depends_on:                   # Khởi động CUỐI CÙNG
+      - auth-service
+      - listing-service
+      - search-service
+      - review-service
+      - transaction-service
   mongodb:
-    image: mongo:7.0
-    container_name: evbattery-mongodb
-    restart: unless-stopped
+    image: mongo
+    container_name: mongodb
     ports:
       - "27017:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: evbattery@2024
-      MONGO_INITDB_DATABASE: evtrading_platform
-    volumes:
-      - mongodb_data:/data/db
-      - mongodb_config:/data/configdb
-    networks:
-      - evbattery-network
-
-  # Redis Cache
-  redis:
-    image: redis:7-alpine
-    container_name: evbattery-redis
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - evbattery-network
-    command: redis-server --appendonly yes --requirepass evbattery@2024
-
-  # Transaction Service
-  transaction-service:
-    build:
-      context: ./services/transaction-service
-      dockerfile: Dockerfile
-    container_name: evbattery-transaction-service
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    environment:
-      NODE_ENV: development
-      PORT: 3000
-      MONGODB_URI: mongodb://admin:evbattery@2024@mongodb:27017/evtrading_platform?authSource=admin
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      REDIS_PASSWORD: evbattery@2024
-      CASSO_WEBHOOK_SECRET: AK_CS.0e4f5550b87511f098dc7bf09fa7a682.bJ1EcxqWCAt1URDCslpPphgzPINPsryRr7eYDHf3snoHAN3VRthhAYam9fiJ7GIugULFGMUv
-      
-    volumes:
-      - ./services/transaction-service:/app
-      - /app/node_modules
-    depends_on:
-      - mongodb
-      - redis
-    networks:
-      - evbattery-network
-
-  # Auth Service (TODO: implement)
-  # auth-service:
-  #   build:
-  #     context: ./services/auth-service
-  #     dockerfile: Dockerfile
-  #   container_name: evbattery-auth-service
-  #   restart: unless-stopped
-  #   ports:
-  #     - "3001:3001"
-  #   environment:
-  #     NODE_ENV: development
-  #     PORT: 3001
-  #     MONGODB_URI: mongodb://admin:evbattery@2024@mongodb:27017/evtrading_platform?authSource=admin
-  #   depends_on:
-  #     - mongodb
-  #     - redis
-  #   networks:
-  #     - evbattery-network
-
-  # Listing Service (TODO: implement)
-  # listing-service:
-  #   build:
-  #     context: ./services/listing-service
-  #     dockerfile: Dockerfile
-  #   container_name: evbattery-listing-service
-  #   restart: unless-stopped
-  #   ports:
-  #     - "3002:3002"
-  #   environment:
-  #     NODE_ENV: development
-  #     PORT: 3002
-  #     MONGODB_URI: mongodb://admin:evbattery@2024@mongodb:27017/evtrading_platform?authSource=admin
-  #   depends_on:
-  #     - mongodb
-  #     - redis
-  #   networks:
-  #     - evbattery-network
-
-  # Search Service (TODO: implement)
-  # search-service:
-  #   build:
-  #     context: ./services/search-service
-  #     dockerfile: Dockerfile
-  #   container_name: evbattery-search-service
-  #   restart: unless-stopped
-  #   ports:
-  #     - "3003:3003"
-  #   environment:
-  #     NODE_ENV: development
-  #     PORT: 3003
-  #     MONGODB_URI: mongodb://admin:evbattery@2024@mongodb:27017/evtrading_platform?authSource=admin
-  #   depends_on:
-  #     - mongodb
-  #     - redis
-  #   networks:
-  #     - evbattery-network
-
-  # Admin Service (TODO: implement)
-  # admin-service:
-  #   build:
-  #     context: ./services/admin-service
-  #     dockerfile: Dockerfile
-  #   container_name: evbattery-admin-service
-  #   restart: unless-stopped
-  #   ports:
-  #     - "3004:3004"
-  #   environment:
-  #     NODE_ENV: development
-  #     PORT: 3004
-  #     MONGODB_URI: mongodb://admin:evbattery@2024@mongodb:27017/evtrading_platform?authSource=admin
-  #   depends_on:
-  #     - mongodb
-  #     - redis
-  #   networks:
-  #     - evbattery-network
-
-  # API Gateway (TODO: implement)
-  # gateway:
-  #   build:
-  #     context: ./gateway
-  #     dockerfile: Dockerfile
-  #   container_name: evbattery-gateway
-  #   restart: unless-stopped
-  #   ports:
-  #     - "4000:4000"
-  #   environment:
-  #     NODE_ENV: development
-  #     PORT: 4000
-  #     AUTH_SERVICE_URL: http://auth-service:3001
-  #     LISTING_SERVICE_URL: http://listing-service:3002
-  #     SEARCH_SERVICE_URL: http://search-service:3003
-  #     TRANSACTION_SERVICE_URL: http://transaction-service:3000
-  #     ADMIN_SERVICE_URL: http://admin-service:3004
-  #   depends_on:
-  #     - transaction-service
-  #   networks:
-  #     - evbattery-network
-
-volumes:
-  mongodb_data:
-    driver: local
-  mongodb_config:
-    driver: local
-  redis_data:
-    driver: local
-
 networks:
-  evbattery-network:
+  default:
     driver: bridge
-
