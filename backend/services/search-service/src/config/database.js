@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
-export const connectDatabase = async () => {
+const mongoose = require('mongoose'); // <-- SỬA;
+const connectDatabase = async () => {
   try{
     await mongoose.connect(
         process.env.MONGODB_URI,
@@ -10,4 +10,6 @@ export const connectDatabase = async () => {
     process.exit(1); // Dừng ứng dụng nếu không kết nối được CSDL
 
   }
-  }
+  };
+  
+  module.exports = { connectDatabase };
