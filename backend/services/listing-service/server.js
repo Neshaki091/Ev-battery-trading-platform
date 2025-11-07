@@ -1,26 +1,21 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
-const cors = require("cors");
 const listingRoutes = require("./routes/routeslisting.routes");
-
+const { connectRabbitMQ } = require('./util/mqService');
 const app = express();
-
+const dotenv = require("dotenv");
+dotenv.config();
 // Middleware
-app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
 // Kết nối MongoDB
 mongoose
-  .connect("mongodb://localhost:27017/listingdb", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGO_URI, {})
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
-
+connectRabbitMQ();
 // Sử dụng routes
-app.use("/api/listings", listingRoutes);
+app.use("/", listingRoutes);
 
 // Chạy server
 const PORT = process.env.PORT || 5000;
