@@ -1,0 +1,644 @@
+{
+  "info": {
+    "name": "Transaction Service API",
+    "description": "API Collection for EV Battery Trading Platform - Transaction Service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api/transactions",
+      "type": "string"
+    },
+    {
+      "key": "authBaseUrl",
+      "value": "http://localhost:8080/api/auth",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "orderId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "feeId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "0. Authentication (Setup)",
+      "item": [
+        {
+          "name": "Login as User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('accessToken', jsonData.accessToken);",
+                  "    console.log('User Token saved:', jsonData.accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{authBaseUrl}}/users/login",
+              "host": ["{{authBaseUrl}}"],
+              "path": ["users", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login as Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('adminToken', jsonData.accessToken);",
+                  "    console.log('Admin Token saved:', jsonData.accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{authBaseUrl}}/users/login",
+              "host": ["{{authBaseUrl}}"],
+              "path": ["users", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. User - Transactions",
+      "item": [
+        {
+          "name": "Create Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('orderId', jsonData.order._id);",
+                  "    console.log('Order ID saved:', jsonData.order._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"listingId\": \"673abc123456\",\n  \"type\": \"pin\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders"]
+            },
+            "description": "Tạo order mới khi user mua sản phẩm. Service sẽ tự động:\n- Gọi Listing Service để lấy giá và sellerId\n- Tính phí hoa hồng dựa trên FeeConfig\n- Ngăn user mua tin của chính mình"
+          }
+        },
+        {
+          "name": "Process Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}/payment",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "{{orderId}}", "payment"]
+            },
+            "description": "Xử lý thanh toán cho order (giả lập). Chỉ buyer mới được thanh toán và order phải ở trạng thái pending."
+          }
+        },
+        {
+          "name": "Download Contract PDF",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}/contract",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "{{orderId}}", "contract"]
+            },
+            "description": "Tải hợp đồng điện tử PDF. Chỉ buyer, seller, hoặc admin mới được tải. Order phải ở trạng thái paid."
+          }
+        },
+        {
+          "name": "Get Transaction History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders/history",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "history"]
+            },
+            "description": "Lấy lịch sử giao dịch của user (cả mua và bán)"
+          }
+        },
+        {
+          "name": "Get Transaction History - Filter by Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders/history?status=paid",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "history"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "paid",
+                  "description": "pending, paid, completed, cancelled"
+                }
+              ]
+            },
+            "description": "Lấy lịch sử giao dịch với filter theo status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Admin - Fee Management",
+      "item": [
+        {
+          "name": "Get All Fee Configs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/fees",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "fees"]
+            },
+            "description": "Lấy tất cả cấu hình phí/hoa hồng. Yêu cầu admin role."
+          }
+        },
+        {
+          "name": "Create Fee Config - DEFAULT",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('feeId', jsonData.data._id);",
+                  "    console.log('Fee Config ID saved:', jsonData.data._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"DEFAULT\",\n  \"rate\": 0.05,\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/fees",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "fees"]
+            },
+            "description": "Tạo fee config mặc định (5%)"
+          }
+        },
+        {
+          "name": "Create Fee Config - VEHICLE",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"VEHICLE\",\n  \"rate\": 0.03,\n  \"startDate\": \"2024-01-01T00:00:00.000Z\",\n  \"endDate\": \"2024-12-31T23:59:59.000Z\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/fees",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "fees"]
+            },
+            "description": "Tạo fee config cho xe điện (3%) với thời hạn"
+          }
+        },
+        {
+          "name": "Create Fee Config - BATTERY",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"BATTERY\",\n  \"rate\": 0.07,\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/fees",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "fees"]
+            },
+            "description": "Tạo fee config cho pin (7%) không giới hạn thời gian"
+          }
+        },
+        {
+          "name": "Update Fee Config",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rate\": 0.06,\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/fees/{{feeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "fees", "{{feeId}}"]
+            },
+            "description": "Cập nhật fee config theo ID"
+          }
+        },
+        {
+          "name": "Deactivate Fee Config",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/fees/{{feeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "fees", "{{feeId}}"]
+            },
+            "description": "Vô hiệu hóa fee config (không xóa)"
+          }
+        },
+        {
+          "name": "Delete Fee Config",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/fees/{{feeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "fees", "{{feeId}}"]
+            },
+            "description": "Xóa vĩnh viễn fee config"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Test Scenarios",
+      "item": [
+        {
+          "name": "Scenario 1: Complete Purchase Flow",
+          "item": [
+            {
+              "name": "Step 1: Create Order",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Order created successfully', function() {",
+                      "    pm.response.to.have.status(201);",
+                      "});",
+                      "",
+                      "pm.test('Order has commission fields', function() {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.order).to.have.property('commissionRate');",
+                      "    pm.expect(jsonData.order).to.have.property('commissionAmount');",
+                      "    pm.collectionVariables.set('orderId', jsonData.order._id);",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"listingId\": \"673abc123456\",\n  \"type\": \"pin\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/orders",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["orders"]
+                }
+              }
+            },
+            {
+              "name": "Step 2: Process Payment",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Payment processed', function() {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "pm.test('Order status is paid', function() {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.order.status).to.equal('paid');",
+                      "    pm.expect(jsonData.order).to.have.property('paidAt');",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/orders/{{orderId}}/payment",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["orders", "{{orderId}}", "payment"]
+                }
+              }
+            },
+            {
+              "name": "Step 3: Download Contract",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Contract PDF downloaded', function() {",
+                      "    pm.response.to.have.status(200);",
+                      "    pm.response.to.have.header('Content-Type', 'application/pdf');",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/orders/{{orderId}}/contract",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["orders", "{{orderId}}", "contract"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Scenario 2: Fee Calculation Test",
+          "item": [
+            {
+              "name": "Create DEFAULT Fee (5%)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"DEFAULT\",\n  \"rate\": 0.05,\n  \"isActive\": true\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/fees",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "fees"]
+                }
+              }
+            },
+            {
+              "name": "Create BATTERY Fee (7%)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"BATTERY\",\n  \"rate\": 0.07,\n  \"isActive\": true\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/fees",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "fees"]
+                }
+              }
+            },
+            {
+              "name": "Create Order for Battery (Should use 7%)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Commission rate is 7%', function() {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.order.commissionRate).to.equal(0.07);",
+                      "});",
+                      "",
+                      "pm.test('Commission amount calculated correctly', function() {",
+                      "    const jsonData = pm.response.json();",
+                      "    const expectedCommission = jsonData.order.price * 0.07;",
+                      "    pm.expect(jsonData.order.commissionAmount).to.equal(expectedCommission);",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"listingId\": \"673abc123456\",\n  \"type\": \"pin\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/orders",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["orders"]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+

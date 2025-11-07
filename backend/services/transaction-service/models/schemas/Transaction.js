@@ -12,7 +12,9 @@ const transactionSchema = new mongoose.Schema({
   type: { type: String, enum: ['xe', 'pin'], required: true },
   status: { type: String, enum: ['pending', 'paid', 'completed', 'cancelled'], default: 'pending' },
   paidAt: { type: Date },
-  createdAt: { type: Date, default: Date.now }
+  // BỔ SUNG: Fields liên quan đến phí/hoa hồng
+  commissionRate: { type: Number, default: 0.05 },
+  commissionAmount: { type: Number, default: 0 }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Transaction', transactionSchema);

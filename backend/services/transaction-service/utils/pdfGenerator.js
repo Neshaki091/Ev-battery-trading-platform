@@ -146,13 +146,18 @@ function drawPartiesInfo(doc, fontName, fontBold, order) {
      .fillColor('#1a73e8')
      .text('BEN A - NGUOI MUA', 60, y + 10);
   
+  const buyerInfo = order.userId || {};
+  const buyerEmail = buyerInfo.profile?.email || buyerInfo._id || 'N/A';
+  const buyerName = buyerInfo.profile?.username || 'Nguoi mua';
+  const buyerPhone = buyerInfo.profile?.phonenumber || 'N/A';
+  
   doc.font(fontName)
      .fontSize(10)
      .fillColor('#000000')
-     .text(`Ma thanh vien: ${order.userId || 'N/A'}`, 60, y + 30)
-     .text(`Vai tro: Nguoi mua hang`, 60, y + 45)
-     .text(`Trang thai: ${order.status === 'paid' ? 'Da thanh toan' : 'Chua thanh toan'}`, 60, y + 60)
-     .text(`Quyen loi: Duoc bao hanh, ho tro`, 60, y + 75);
+     .text(`Ten: ${buyerName}`, 60, y + 30)
+     .text(`Email: ${buyerEmail}`, 60, y + 45)
+     .text(`SDT: ${buyerPhone}`, 60, y + 60)
+     .text(`Trang thai: ${order.status === 'paid' ? 'Da thanh toan' : 'Chua thanh toan'}`, 60, y + 75);
   
   // Bên B - Người bán
   doc.rect(305, y, 240, 100).stroke();
@@ -161,13 +166,21 @@ function drawPartiesInfo(doc, fontName, fontBold, order) {
      .fillColor('#1a73e8')
      .text('BEN B - NGUOI BAN', 315, y + 10);
   
+  const sellerInfo = order.sellerId || {};
+  const sellerEmail = sellerInfo.profile?.email || sellerInfo._id || 'N/A';
+  const sellerName = sellerInfo.profile?.username || 'Nguoi ban';
+  const sellerPhone = sellerInfo.profile?.phonenumber || 'N/A';
+  
+  const listingInfo = order.listingId || {};
+  const listingTitle = listingInfo.title || 'N/A';
+  
   doc.font(fontName)
      .fontSize(10)
      .fillColor('#000000')
-     .text(`Tin dang: ${order.listingId || order.itemId || 'N/A'}`, 315, y + 30)
-     .text(`Ma nguoi ban: ${order.sellerId || 'N/A'}`, 315, y + 45)
-     .text(`Vai tro: Nguoi cung cap hang`, 315, y + 60)
-     .text(`Nghia vu: Giao hang, bao hanh`, 315, y + 75);
+     .text(`Ten: ${sellerName}`, 315, y + 30)
+     .text(`Email: ${sellerEmail}`, 315, y + 45)
+     .text(`SDT: ${sellerPhone}`, 315, y + 60)
+     .text(`San pham: ${listingTitle}`, 315, y + 75);
   
   doc.moveDown(8);
 }

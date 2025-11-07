@@ -1,7 +1,7 @@
 // controllers/orderController.js
 const Transaction = require('../utils/Transaction');
 const pdfGenerator = require('../utils/pdfGenerator');
-const axios = require('axios'); // SỬA 1: Import axios
+const axios = require('axios');
 
 // SỬA 2: Sửa toàn bộ hàm createOrder
 const createOrder = async (req, res) => {
@@ -14,15 +14,22 @@ const createOrder = async (req, res) => {
       return res.status(400).json({ success: false, error: 'Missing required fields: listingId, type' });
     }
 
-    // SỬA 3: Dùng axios gọi Listing-service để lấy thông tin tin cậy
     let listingInfo;
     try {
-      // Giả sử Listing-service chạy ở port 5000 (gọi nội bộ)
-      const response = await axios.get(`http://localhost:5000/${listingId}`);
-      // LƯU Ý: Sửa lại URL /:id cho đúng với route 'getListingById' của bạn
+      // Cần truyền token để Listing Service có thể xác thực (getListingById yêu cầu đăng nhập)
+      const token = req.headers.authorization;
+      // Trong Docker, dùng tên service thay vì localhost
+      const listingServiceUrl = process.env.LISTING_SERVICE_URL || 'http://listing-service:5000';
+      const response = await axios.get(`${listingServiceUrl}/${listingId}`, {
+        headers: { Authorization: token }
+      });
       listingInfo = response.data;
     } catch (err) {
       console.error('Error fetching listing data:', err.message);
+      if (err.response) {
+        console.error('Response status:', err.response.status);
+        console.error('Response data:', err.response.data);
+      }
       return res.status(404).json({ success: false, error: 'Listing not found or Listing service is down' });
     }
 
@@ -82,7 +89,7 @@ const generateContract = async (req, res) => {
   try {
     const id = req.params.id;
     const userId = req.user._id;
-    const userRole = req.user.role; // Lấy role (nếu đã sửa token)
+    const userRole = req.user.role;
 
     const order = await Transaction.findById(id);
 
@@ -90,7 +97,6 @@ const generateContract = async (req, res) => {
       return res.status(404).json({ success: false, error: 'Order not found' });
     }
 
-    // KIỂM TRA QUYỀN: Chỉ người mua, người bán, hoặc admin mới được xem
     if (order.userId.toString() !== userId &&
       order.sellerId.toString() !== userId &&
       userRole !== 'admin') {
@@ -101,15 +107,39 @@ const generateContract = async (req, res) => {
       return res.status(400).json({ success: false, error: 'Order must be paid to generate contract' });
     }
 
-    // ... (logic tạo PDF giữ nguyên) ...
-    pdfGenerator.generate(res, order);
+    // Giả sử pdfGenerator đã được sửa để lấy thêm thông tin User/Listing
+    const populatedOrder = await Transaction.findByIdPopulated(id); 
+
+    pdfGenerator.generate(res, populatedOrder);
   } catch (error) {
-    // ...
+    console.error('Generate contract error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 };
 
-module.exports = {
-  createOrder,
-  processPayment,
-  generateContract
-};
+// 🆕 BỔ SUNG: API Lấy Lịch sử Giao dịch
+const getOrderHistory = async (req, res) => {
+    try {
+      const userId = req.user._id; 
+      const status = req.query.status; 
+  
+      const history = await Transaction.findHistoryByUserId(userId, { status });
+  
+      res.status(200).json({
+        success: true,
+        count: history.length,
+        data: history
+      });
+    } catch (error) {
+      console.error('Get order history error:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  };
+  
+  
+  module.exports = {
+    createOrder,
+    processPayment,
+    generateContract,
+    getOrderHistory, 
+  };

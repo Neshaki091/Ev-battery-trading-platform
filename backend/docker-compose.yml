@@ -5,6 +5,21 @@ services:
     ports:
       - "5672:5672"  # Cổng giao tiếp cho service
       - "15672:15672" # Cổng giao diện web (guest/guest)
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+  
+  # 8. MongoDB (Database)
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db # Persist data
     
   # 2. Auth Service
   auth-service:
@@ -13,7 +28,10 @@ services:
     ports:
       - "3000:3000"               # Mở port 3000
     depends_on:
-      - rabbitmq                  # Khởi động sau rabbitmq
+      mongodb:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
 
   # 3. Listing Service
   listing-service:
@@ -22,7 +40,10 @@ services:
     ports:
       - "5000:5000"
     depends_on:
-      - rabbitmq
+      mongodb:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
 
   # 4. Search Service
   search-service:
@@ -31,7 +52,10 @@ services:
     ports:
       - "8004:8004"
     depends_on:
-      - rabbitmq
+      mongodb:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
 
   # 5. Review Service
   review-service:
@@ -39,6 +63,9 @@ services:
     env_file: ./services/reviews-service/.env
     ports:
       - "8000:8000"
+    depends_on:
+      mongodb:
+        condition: service_started
 
   # 6. Transaction Service
   transaction-service:
@@ -46,6 +73,9 @@ services:
     env_file: ./services/transaction-service/.env
     ports:
       - "3001:3001" # Dùng port 3001
+    depends_on:
+      mongodb:
+        condition: service_started
       
   # 7. Nginx (API Gateway)
   nginx:
@@ -58,11 +88,11 @@ services:
       - search-service
       - review-service
       - transaction-service
-  mongodb:
-    image: mongo
-    container_name: mongodb
-    ports:
-      - "27017:27017"
+
+volumes:
+  mongodb_data:
+    driver: local
+
 networks:
   default:
     driver: bridge
