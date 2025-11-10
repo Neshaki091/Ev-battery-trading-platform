@@ -1,6 +1,17 @@
 import prisma from '../../prisma/client.js';
 
 class ReviewRepository {
+  async findById(id) {
+    return await prisma.review.findUnique({
+      where: { id },
+    });
+  }
+  async findExisting(userId, listingId) {
+    return await prisma.review.findFirst({
+      where: { userId, listingId },
+    });
+  }
+
   async findByUserId(userId) {
     return await prisma.review.findMany({
       where: { userId },

@@ -2,9 +2,9 @@ import express from 'express';
 import prisma from './prisma/client.js';
 import reviewController from './src/controllers/review.controller.js';
 import reportController from './src/controllers/report.controller.js';
+const { authmiddleware } = require('./shared/authmiddleware');
 const app = express();
 const port = process.env.PORT || 8000;
-
 app.use(express.json());
 
 app.get('/health', async (req, res) => {
@@ -25,17 +25,18 @@ app.get('/health', async (req, res) => {
 });
 
 // Review Routes
-app.get('/api/reviews/user/:userId', reviewController.getReviewsByUserId);
-app.get('/api/reviews/listing/:listingId', reviewController.getReviewsByListingId);
-app.post('/api/reviews', reviewController.createReview);
-app.put('/api/reviews/:id', reviewController.updateReview);
-app.delete('/api/reviews/:id', reviewController.deleteReview);
+app.get('/reviews/user/:userId', reviewController.getReviewsByUserId);
+app.get('/reviews/listing/:listingId', reviewController.getReviewsByListingId);
+app.get('/reviews/stats/:listingId', reviewController.getReviewStats);
+app.post('/reviews', authmiddleware, reviewController.createReview);
+app.put('/reviews/:id', authmiddleware, reviewController.updateReview);
+app.delete('/reviews/:id', authmiddleware, reviewController.deleteReview);
 // Report Routes
-app.get('/api/reports', reportController.getAllReports);
-app.get('/api/reports/user/:userId', reportController.getReportsByUserId);
-app.post('/api/reports', reportController.createReport);
-app.put('/api/reports/:id', reportController.updateReportStatus);
-app.delete('/api/reports/:id', reportController.deleteReport);
+app.get('/reports', reportController.getAllReports);
+app.get('/reports/user/:userId', reportController.getReportsByUserId);
+app.post('/reports', authmiddleware, reportController.createReport);
+app.put('/reports/:id', authmiddleware, reportController.updateReportStatus);
+app.delete('/reports/:id', authmiddleware, reportController.deleteReport);
 
 const startServer = async () => {
   try {

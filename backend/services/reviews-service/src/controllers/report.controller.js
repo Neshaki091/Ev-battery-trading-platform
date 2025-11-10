@@ -10,13 +10,14 @@ class ReportController {
         data: reports,
       });
     } catch (error) {
+      console.error('Error in getAllReports:', error);
       res.status(500).json({ success: false, message: error.message });
     }
   }
 
   async getReportsByUserId(req, res) {
-    const { userId } = req.params;
     try {
+      const { userId } = req.params;
       const reports = await ReportService.getUserReports(userId);
       res.status(200).json({
         success: true,
@@ -24,14 +25,16 @@ class ReportController {
         data: reports,
       });
     } catch (error) {
+      console.error('Error in getReportsByUserId:', error);
       const statusCode = error.message.includes('Invalid') ? 400 : 500;
       res.status(statusCode).json({ success: false, message: error.message });
     }
   }
 
   async createReport(req, res) {
-    const { reporterId, subjectType, subjectId, reasonCode, details } = req.body;
     try {
+      const reporterId = req.user._id;
+      const { subjectType, subjectId, reasonCode, details } = req.body;
       const newReport = await ReportService.createReport({
         reporterId,
         subjectType,
@@ -41,39 +44,46 @@ class ReportController {
       });
       res.status(201).json({ success: true, data: newReport });
     } catch (error) {
+      console.error('Error creating report:', error);
       const statusCode = error.message.includes('required') ? 400 : 500;
       res.status(statusCode).json({ success: false, message: error.message });
     }
   }
 
   async updateReportStatus(req, res) {
-    const { id } = req.params;
-    const { status, resolverId } = req.body;
     try {
-      const updatedReport = await ReportService.updateReportStatus(id, { status, resolverId });
+      const reporterIdFromToken = req.user._id;
+      const { status, resolverId } = req.body;
+      const updatedReport = await ReportService.updateReportStatus(
+        req.params.id,
+        { status, resolverId },
+        reporterIdFromToken
+      );
       res.status(200).json({ success: true, data: updatedReport });
     } catch (error) {
-      let statusCode =
-        error.message.includes('Invalid') || error.message.includes('required')
-          ? 400
-          : error.message.includes('Report not found')
+      console.error('Error updating report status:', error);
+      const statusCode =
+        error.message.includes('Invalid') || error.message.includes('not found')
           ? 404
+          : error.message.includes('required') || error.message.includes('Access denied')
+          ? 400
           : 500;
       res.status(statusCode).json({ success: false, message: error.message });
     }
   }
 
   async deleteReport(req, res) {
-    const { id } = req.params;
     try {
-      const deletedReport = await ReportService.deleteReport(id);
+      const reporterIdFromToken = req.user._id;
+      const deletedReport = await ReportService.deleteReport(req.params.id, reporterIdFromToken);
       res.status(200).json({
         success: true,
         message: 'Report deleted successfully',
         data: deletedReport,
       });
     } catch (error) {
-      let statusCode = error.message.includes('Invalid') ? 400 : error.message.includes('not found') ? 404 : 500;
+      console.error('Error deleting report:', error);
+      const statusCode = error.message === 'Report not found' ? 404 : error.message.includes('Invalid') ? 400 : 500;
       res.status(statusCode).json({ success: false, message: error.message });
     }
   }

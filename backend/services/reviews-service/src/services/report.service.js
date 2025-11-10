@@ -25,13 +25,24 @@ class ReportService {
     });
   }
 
-  async updateReportStatus(id, { status, resolverId }) {
+  async updateReportStatus(id, { status, resolverId }, reporterIdFromToken) {
     if (!id) {
       throw new Error('Invalid report id');
     }
     if (!status || !resolverId) {
       throw new Error('Status and resolverId are required');
     }
+
+    const report = await reportRepository.findById(id);
+    if (!report) {
+      throw new Error('Report not found');
+    }
+
+    // So sánh ID từ DB với ID từ token
+    if (report.reporterId !== reporterIdFromToken) {
+      throw new Error('Access denied. You are not the owner.');
+    }
+
     try {
       return reportRepository.updateStatus(id, { status, resolverId });
     } catch (error) {
@@ -42,10 +53,21 @@ class ReportService {
     }
   }
 
-  async deleteReport(id) {
+  async deleteReport(id, reporterIdFromToken) {
     if (!id) {
       throw new Error('Invalid report id');
     }
+
+    const report = await reportRepository.findById(id);
+    if (!report) {
+      throw new Error('Report not found');
+    }
+
+    // So sánh ID từ DB với ID từ token
+    if (report.reporterId !== reporterIdFromToken) {
+      throw new Error('Access denied. You are not the owner.');
+    }
+
     try {
       return reportRepository.delete(id);
     } catch (error) {

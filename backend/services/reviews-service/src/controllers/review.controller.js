@@ -35,7 +35,9 @@ class ReviewController {
 
   async createReview(req, res) {
     try {
-      const review = await reviewService.createReview(req.body);
+      const userId = req.user._id;
+      const { listingId, rating, content } = req.body;
+      const review = await reviewService.createReview({ userId, listingId, rating, content });
       res.status(201).json({
         success: true,
         data: review,
@@ -52,7 +54,9 @@ class ReviewController {
 
   async updateReview(req, res) {
     try {
-      const review = await reviewService.updateReview(req.params.id, req.body);
+      const userIdFromToken = req.user._id;
+      const { rating, content } = req.body;
+      const review = await reviewService.updateReview(req.params.id, { rating, content }, userIdFromToken);
       res.status(200).json({
         success: true,
         data: review,
@@ -71,7 +75,8 @@ class ReviewController {
 
   async deleteReview(req, res) {
     try {
-      const review = await reviewService.deleteReview(req.params.id);
+      const userIdFromToken = req.user._id;
+      const review = await reviewService.deleteReview(req.params.id, userIdFromToken);
       res.status(200).json({
         success: true,
         message: 'Review deleted successfully',

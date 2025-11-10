@@ -1,6 +1,12 @@
 import prisma from '../../prisma/client.js';
 
 class ReportRepository {
+  async findById(id) {
+    return await prisma.reports.findUnique({
+      where: { id },
+    });
+  }
+
   async findAllReport() {
     return prisma.reports.findMany();
   }
