@@ -2,23 +2,16 @@ const mongoose = require("mongoose");
 
 const ListingSchema = new mongoose.Schema(
   {
-    // TRƯỜNG listing_id ĐÃ BỊ LOẠI BỎ
+    // --- TRƯỜNG CƠ BẢN VÀ BẮT BUỘC ---
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    vehicle_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Vehicle",
-    },
-    battery_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Battery",
-    },
     title: {
       type: String,
       trim: true,
+      required: true, // Thêm required cho title
     },
     description: {
       type: String,
@@ -57,11 +50,31 @@ const ListingSchema = new mongoose.Schema(
         type: String,
       },
     ],
+
+    // --- TRƯỜNG LIÊN KẾT (Dành cho việc Fetch dữ liệu chi tiết) ---
+    vehicle_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Vehicle",
+      required: function() { return this.category === 'Vehicle'; } // Bắt buộc nếu là Vehicle
+    },
+    battery_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Battery",
+      required: function() { return this.category === 'Battery'; } // Bắt buộc nếu là Battery
+    },
+
+    // --- TRƯỜNG TÌM KIẾM CHI TIẾT (Được sao chép từ Schema Search) ---
+    // Mục tiêu: Giảm thiểu việc Search Service phải liên kết lại Listing Service
+    // Các trường này nên được điền khi tạo/cập nhật Listing.
+    vehicle_brand: { type: String, trim: true }, 
+    vehicle_model: { type: String, trim: true }, 
+    vehicle_manufacturing_year: { type: Number }, 
+    vehicle_mileage_km: { type: Number }, 
+    battery_capacity_kwh: { type: Number }, 
+    battery_condition_percentage: { type: Number }, 
+
   },
   { timestamps: true }
 );
-
-// LOẠI BỎ HÀM pre('save') TẠO listing_id
-// ListingSchema.pre("save", function (next) { ... });
 
 module.exports = mongoose.model("Listing", ListingSchema);
