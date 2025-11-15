@@ -1,35 +1,46 @@
 const express = require("express");
 const router = express.Router();
-const listingController = require("../controllers/controllerslisting.controller");
-const { authmiddleware } = require("../util/authmiddleware");
 
-// SỬA 1: Import hàm mới
-const { getPublicListings, getListingsByOwner, verifyListing } = require("../controllers/controllerslisting.controller");
+// SỬA 1: Chỉ import controller object, không import lẻ
+const listingController = require("../controllers/controllerslisting.controller");
+const { authmiddleware } = require("../shared/authmiddleware");
+const { allowAdminOrInternal } = require("../util/allowAdminOrInternal");
+const { allowAdminRole } = require("../shared/adminMiddleware");
 
 // --- PUBLIC & CƠ BẢN ---
-router.get("/public", getPublicListings); // Lấy tin Active (Public)
-router.get("/my", authmiddleware, getListingsByOwner); 
-router.get("/:id", listingController.getListingById); // Lấy tin theo ID (Có kiểm tra quyền xem)
+// SỬA 2: Dùng listingController.functionName cho nhất quán
+router.get("/public", listingController.getPublicListings);
+router.get("/my", authmiddleware, listingController.getListingsByOwner);
+router.get("/:id", authmiddleware, listingController.getListingById);
 
 // --- CHỨC NĂNG NGƯỜI DÙNG ---
-// 🆕 BỔ SUNG: Lấy tin đăng của chính mình (GET /api/listings/my)
+
+// === BỔ SUNG: Route cho AI Gợi ý giá ===
+router.post("/suggest-price", authmiddleware, listingController.suggestPrice);
 
 router.post("/", authmiddleware, listingController.createListing);
 router.put("/:id", authmiddleware, listingController.updateListing);
 router.delete("/:id", authmiddleware, listingController.deleteListing);
 
 // --- CHỨC NĂNG ADMIN ---
-router.get("/", authmiddleware, listingController.getAllListings); // Tất cả tin (Admin only)
+// SỬA 2: Dùng listingController.functionName
+router.get("/", authmiddleware,allowAdminRole, listingController.getAllListings);
 router.put(
-    "/:id/approve",
-    authmiddleware,
-    listingController.approveListing
+    "/:id/approve",
+    authmiddleware,allowAdminRole,
+    listingController.approveListing
 );
-// 🆕 BỔ SUNG: Gắn nhãn kiểm định (PUT /api/listings/:id/verify)
 router.put(
-    "/:id/verify",
-    authmiddleware,
-    verifyListing
+    "/:id/verify",
+    authmiddleware,
+    allowAdminRole,
+    listingController.verifyListing
 );
+router.put(
+    "/:id/status",
+    allowAdminOrInternal,
+    listingController.updateListingStatus
+);
+
 
 module.exports = router;
