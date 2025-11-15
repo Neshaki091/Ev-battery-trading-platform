@@ -1,5 +1,5 @@
 const amqp = require('amqplib');
-const Listing = require('../models/listing');
+const Listing = require('../models/listing'); // Đảm bảo model này cũng có schema cho 'images'
 
 const RABBITMQ_URL = process.env.RABBITMQ_URL;
 const QUEUE_NAME = 'listing_events';
@@ -15,8 +15,15 @@ const getListingSyncData = (listingData) => ({
     status: listingData.status,
     category: listingData.category,
 
+    // === SỬA Ở ĐÂY: Chỉ lưu ảnh đầu tiên ===
+    // Kiểm tra nếu mảng images tồn tại và có phần tử, thì chỉ lấy phần tử đầu tiên
+    // Lưu nó vào một mảng mới để giữ đúng kiểu dữ liệu (Array<string>)
+    images: (listingData.images && listingData.images.length > 0) 
+        ? [listingData.images[0]] 
+        : [],
+    // ===================================
+
     // CÁC TRƯỜNG MỚI ĐƯỢC THÊM
-    // Giả định dữ liệu gửi qua RabbitMQ có cấu trúc phẳng hoặc chứa các trường này
     vehicle_brand: listingData.vehicle_brand,
     vehicle_model: listingData.vehicle_model,
     vehicle_manufacturing_year: listingData.vehicle_manufacturing_year,
@@ -38,7 +45,7 @@ async function connectAndConsume() {
 
         connection.on("error", (err) => {
             console.error('⚠️ RabbitMQ connection lost. Reconnecting...', err.message);
-            setTimeout(startListingConsumer, RETRY_DELAY); 
+            setTimeout(startListingConsumer, RETRY_DELAY);
         });
 
         channel.consume(QUEUE_NAME, async (msg) => {
@@ -50,17 +57,24 @@ async function connectAndConsume() {
                     console.log(`[Search Service] Received event: ${message.event}`);
 
                     // --- LOGIC XỬ LÝ SỰ KIỆN (ĐÃ CẬP NHẬT) ---
+
+                    // SỬA LỖI: Dùng upsert cho 'listing_created'
                     if (message.event === 'listing_created') {
+                        // Hàm này giờ đã bao gồm 'images' (chỉ 1 ảnh)
                         const syncData = getListingSyncData(listingData);
-                        const searchListing = new Listing({
-                            _id: listingData._id, // Giữ _id đồng bộ
-                            ...syncData,
-                        });
-                        await searchListing.save();
-                        console.log(`[Search Service] Created listing: ${listingData._id}`);
+
+                        // Thay vì .save(), dùng updateOne + upsert
+                        await Listing.updateOne(
+                            { _id: listingData._id }, // Điều kiện tìm
+                            { $set: syncData },      // Dữ liệu (chỉ 1 ảnh)
+                            { upsert: true, setDefaultsOnInsert: true } // Tạo mới nếu chưa có
+                        );
+                        console.log(`[Search Service] Upserted (created) listing: ${listingData._id}`);
 
                     } else if (message.event === 'listing_updated') {
+                        // Hàm này giờ đã bao gồm 'images' (chỉ 1 ảnh)
                         const updateFields = getListingSyncData(listingData);
+                        
                         await Listing.findByIdAndUpdate(listingData._id, updateFields, { new: true });
                         console.log(`[Search Service] Updated listing: ${listingData._id}`);
 
@@ -71,8 +85,14 @@ async function connectAndConsume() {
 
                     channel.ack(msg);
                 } catch (error) {
-                    console.error('❌ Error processing message. Nacking...', error.message);
-                    channel.nack(msg);
+                    // TÙY CHỌN NÂNG CAO: Bạn có thể kiểm tra lỗi E11000 và ack()
+                    if (error.code === 11000) {
+                        console.warn(`[Search Service] Ignored duplicate key (E11000). Acknowledging.`);
+                        channel.ack(msg); // Ack() để xóa message trùng lặp
+                    } else {
+                        console.error('❌ Error processing message. Nacking...', error.message);
+                        channel.nack(msg); // Chỉ nack() các lỗi không mong muốn khác
+                    }
                 }
             }
         });
@@ -86,5 +106,5 @@ async function connectAndConsume() {
 async function startListingConsumer() {
     await connectAndConsume();
 }
- 
+
 module.exports = { startListingConsumer };

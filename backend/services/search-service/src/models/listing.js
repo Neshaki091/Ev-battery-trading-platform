@@ -18,7 +18,7 @@ const ListingSearchSchema = new mongoose.Schema({
     vehicle_mileage_km: { type: Number, index: true }, // Lọc theo số km
     battery_capacity_kwh: { type: Number, index: true }, // Lọc theo dung lượng pin
     battery_condition_percentage: { type: Number, index: true }, // Lọc theo tình trạng pin
-
+    images: [{ type: String }], // Giữ nguyên mảng hình ảnh
     // Giữ lại ID tham chiếu (nếu cần)
     vehicle_id: { type: mongoose.Schema.Types.ObjectId },
     battery_id: { type: mongoose.Schema.Types.ObjectId },

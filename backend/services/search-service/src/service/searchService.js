@@ -1,7 +1,6 @@
 const Listing = require('../models/listing');
 
 const searchListings = async (params) => {
-    // Đã thêm các tham số lọc mới
     const {
         q, category, location, condition,
         price_min, price_max, 
@@ -13,45 +12,41 @@ const searchListings = async (params) => {
         limit = 10
     } = params;
 
-    const query = { status: 'approved' }; // Luôn lọc tin đã được duyệt
+    // const query = { status: 'approved' }; // Luôn lọc tin đã được duyệt
+    const query = { status: {$in: ["Active", "Sold"]} }; // Luôn lọc tin đã được duyệt
 
-    // --- XÂY DỰNG QUERY LỌC ---
-    
-    // 1. Lọc tìm kiếm văn bản
+    // --- 1. TÌM KIẾM VĂN BẢN TOÀN BỘ (Text Search) ---
     if (q) {
         query.$text = { $search: q };
     }
     
-    // 2. Lọc theo trường cơ bản
+    // --- 2. LỌC THEO CÁC TRƯỜNG CƠ BẢN ---
     if (category) query.category = category;
-    if (location) query.location = location;
-    if (condition) query.condition = condition;
-
+    
+    // SỬA: Dùng regex để tìm kiếm không phân biệt hoa thường và linh hoạt hơn
     if (location) {
-    query.location = { $regex: `^${location}$`, $options: 'i' };
+        query.location = { $regex: location, $options: 'i' };
+    }
+    if (condition) {
+        query.condition = { $regex: condition, $options: 'i' };
     }
 
-
-    // 3. Lọc theo giá (Range)
+    // --- 3. LỌC THEO KHOẢNG GIÁ ---
+    // SỬA: Loại bỏ logic xung đột, chỉ giữ lại lọc theo khoảng giá
     if (price_min || price_max) {
         query.price = {};
         if (price_min) query.price.$gte = parseInt(price_min);
         if (price_max) query.price.$lte = parseInt(price_max);
     }
     
-    if (params.price) {
-    query.price = parseInt(params.price);
-    }
-
-// 4. Lọc theo Vehicle Details (Sử dụng tên trường phẳng mới)
-    //if (brand) query.vehicle_brand = brand;
-    // search bằng regex không phân biệt hoa thường
+    // --- 4. LỌC THEO CHI TIẾT XE ---
+    // SỬA: Dùng regex cho brand và model để tìm kiếm linh hoạt hơn
     if (brand) {
-    // SỬ DỤNG $regex VÀ $options: 'i' LÀ ĐỦ
-    query.vehicle_brand = { $regex: `^${brand}$`, $options: 'i' };
+        query.vehicle_brand = { $regex: brand, $options: 'i' };
     }
-
-    if (model) query.vehicle_model = model;
+    if (model) {
+        query.vehicle_model = { $regex: model, $options: 'i' };
+    }
     
     if (year_min || year_max) {
         query.vehicle_manufacturing_year = {};
@@ -59,9 +54,11 @@ const searchListings = async (params) => {
         if (year_max) query.vehicle_manufacturing_year.$lte = parseInt(year_max);
     }
     
-    if (mileage_max) query.vehicle_mileage_km = { $lte: parseInt(mileage_max) };
+    if (mileage_max) {
+        query.vehicle_mileage_km = { $lte: parseInt(mileage_max) };
+    }
 
-    // 5. Lọc theo Battery Details (Sử dụng tên trường phẳng mới)
+    // --- 5. LỌC THEO CHI TIẾT PIN ---
     if (battery_capacity_min) {
         query.battery_capacity_kwh = { $gte: parseFloat(battery_capacity_min) };
     }
@@ -69,27 +66,29 @@ const searchListings = async (params) => {
         query.battery_condition_percentage = { $gte: parseInt(battery_condition_min) };
     }
 
-
-    // --- LOGIC SẮP XẾP (Đề xuất tin mới lên đầu) ---
+    // --- 6. LOGIC SẮP XẾP ---
     let sortOptions = {};
     switch (sort_by) {
-        case 'price_asc': sortOptions.price = 1; break;
-        case 'price_desc': sortOptions.price = -1; break;
+        case 'price_asc':
+            sortOptions.price = 1;
+            break;
+        case 'price_desc':
+            sortOptions.price = -1;
+            break;
         case 'relevance': 
-            // Chỉ sắp xếp theo relevance nếu có tìm kiếm văn bản (q)
             if (q) {
                  sortOptions.score = { $meta: 'textScore' }; 
             } else {
-                 sortOptions.createdAt = -1; // Nếu không có q, mặc định là mới nhất
+                 sortOptions.createdAt = -1; 
             }
             break;
-        case 'newest': // Đây là yêu cầu "Đề xuất những tin mới lên đầu"
+        case 'newest':
         default: 
-            sortOptions.createdAt = -1; // Mới nhất lên đầu
+            sortOptions.createdAt = -1;
             break;
     }
 
-    // --- PHÂN TRANG VÀ THỰC THI TRUY VẤN ---
+    // --- 7. PHÂN TRANG VÀ THỰC THI TRUY VẤN ---
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const limitValue = parseInt(limit);
 
