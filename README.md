@@ -58,7 +58,6 @@ ev-trade-platform/
 | `analytics-service` | Thống kê |
 | `chat-service` | Nhắn tin giữa người bán và người mua |
 | `auction-service` | Đấu giá |
-=======
 | `gateway` | API Gateway |
 | `frontend-web` | Giao diện web (React / Next.js) |
 | `frontend-mobile` | App Android (Flutter / React Native) |
