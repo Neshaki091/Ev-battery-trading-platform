@@ -17,12 +17,21 @@ ev-trade-platform/
 │ │ ├── listing-service/
 │ │ ├── search-service/
 │ │ ├── transaction-service/
+<<<<<<< HEAD
 │ │ ├── review-service/
 │ │ ├── report-service/
 │ │ ├── wishlist-service/
 │ │ ├── analytics-service/
 │ │ ├── chat-service/
 │ │ └── auction-service/
+=======
+│ │ └── review-service/
+| │ ├── report-service/      <-- MỚI
+| │ ├── wishlist-service/    <-- MỚI
+│ | ├── analytics-service/   <-- MỚI
+│ | ├── chat-service/        <-- MỚI
+│ | └── auction-service/     <-- MỚI
+>>>>>>> 43b426c330820e148bf3a6d2aeb32ea7abb47fbe
 │ ├── shared/ #middleware dùng chung 
 │ └── docker-compose.yml
 │
@@ -47,12 +56,20 @@ ev-trade-platform/
 | `listing-service` | CRUD tin đăng xe/pin |
 | `search-service` | Tìm kiếm, lọc, gợi ý |
 | `transaction-service` | Giao dịch, thanh toán, hợp đồng |
+<<<<<<< HEAD
 | `review-service` | Đánh giá bài đăng |
 | `report-service` | Báo cáo bài đăng, người dùng |
 | `wishlist-service` | Danh sách yêu thích |
 | `analytics-service` | Thống kê |
 | `chat-service` | Nhắn tin giữa người bán và người mua |
 | `auction-service` | Đấu giá |
+=======
+| `review-services` | Đánh giá bài đăng |
+| `report-services` | Báo cáo bài đăng, người dùng |
+| `analytics-service` | Thống kê |
+| `chat-services` | Nhắn tin giữa người bán và người mua|
+| `auction-services` | Đấu giá |
+>>>>>>> 43b426c330820e148bf3a6d2aeb32ea7abb47fbe
 | `gateway` | API Gateway |
 | `frontend-web` | Giao diện web (React / Next.js) |
 | `frontend-mobile` | App Android (Flutter / React Native) |
