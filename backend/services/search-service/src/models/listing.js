@@ -27,6 +27,11 @@ const ListingSearchSchema = new mongoose.Schema({
 });
 
 // Tạo composite text index (tìm kiếm trên cả title và description)
-ListingSearchSchema.index({ title: 'text', description: 'text' });
-
+ListingSearchSchema.index({
+    title: 'text',
+    description: 'text',
+    location: 'text',
+    vehicle_brand: 'text',
+    vehicle_model: 'text'
+});
 module.exports = mongoose.model('Listing', ListingSearchSchema);
