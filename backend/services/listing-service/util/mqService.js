@@ -1,4 +1,4 @@
-// listing-service/util/mqservice.js (Code Đã Sửa)
+// listing-service/utils/mqService.js (Code Đã Sửa)
 const amqp = require('amqplib');
 
 const RABBITMQ_URL = process.env.RABBITMQ_URL;
@@ -31,12 +31,20 @@ async function connectRabbitMQ() {
 }
 
 async function sendMessage(message) {
-    // ... (logic sendMessage giữ nguyên)
-    if (!channel) {
-        console.error('RabbitMQ channel not available. Message dropped or waiting for reconnection.');
-        return;
+    if (!channel) {
+        console.error('RabbitMQ channel not available. Message dropped or waiting for reconnection.');
+        return;
+    }
+    try {
+        const messageString = JSON.stringify(message);
+        // Gửi tin nhắn vào Queue (sử dụng assertQueue trong connect)
+        channel.sendToQueue(QUEUE_NAME, Buffer.from(messageString), { 
+            persistent: true // Giữ tin nhắn trên đĩa cho đến khi Consumer nhận được
+        });
+        console.log(`[MQ] Sent message: ${message.event} for ID ${message.data?._id || message.id}`);
+    } catch (err) {
+        console.error('Failed to send message to RabbitMQ:', err.message);
     }
-    // ...
 }
 
 module.exports = { connectRabbitMQ, sendMessage };
