@@ -2,7 +2,6 @@
   "name": "review-service",
   "version": "1.0.0",
   "description": "",
-  "type": "module",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -16,8 +15,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "amqplib": "^0.10.9",
     "@prisma/client": "^6.18.0",
+    "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
     "prisma": "^6.18.0"
   }
 }

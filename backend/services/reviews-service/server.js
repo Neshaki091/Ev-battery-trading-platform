@@ -1,8 +1,7 @@
-import express from 'express';
-import prisma from './prisma/client.js';
-import reviewController from './src/controllers/review.controller.js';
-import reportController from './src/controllers/report.controller.js';
-const { authmiddleware } = require('./shared/authmiddleware');
+const express = require('express');
+const prisma = require('./prisma/client');
+const reviewController = require('./src/controllers/review.controller');
+const { authmiddleware } = require('./shared/authmiddleware'); // Giả sử đặt ở /util
 const app = express();
 const port = process.env.PORT || 8000;
 app.use(express.json());
@@ -24,20 +23,13 @@ app.get('/health', async (req, res) => {
   }
 });
 
-// Review Routes
-app.get('/reviews/user/:userId', reviewController.getReviewsByUserId);
-app.get('/reviews/listing/:listingId', reviewController.getReviewsByListingId);
-app.get('/reviews/stats/:listingId', reviewController.getReviewStats);
-app.post('/reviews', authmiddleware, reviewController.createReview);
-app.put('/reviews/:id', authmiddleware, reviewController.updateReview);
-app.delete('/reviews/:id', authmiddleware, reviewController.deleteReview);
-// Report Routes
-app.get('/reports', reportController.getAllReports);
-app.get('/reports/user/:userId', reportController.getReportsByUserId);
-app.post('/reports', authmiddleware, reportController.createReport);
-app.put('/reports/:id', authmiddleware, reportController.updateReportStatus);
-app.delete('/reports/:id', authmiddleware, reportController.deleteReport);
+app.get('/user/:userId', reviewController.getReviewsByUserId);
+app.get('/listing/:listingId', reviewController.getReviewsByListingId);
+app.get('/stats/:listingId', reviewController.getReviewStats); // Thêm route stats
 
+app.post('/', authmiddleware, reviewController.createReview);
+app.put('/:id', authmiddleware, reviewController.updateReview);
+app.delete('/:id', authmiddleware, reviewController.deleteReview);
 const startServer = async () => {
   try {
     await prisma.$connect();

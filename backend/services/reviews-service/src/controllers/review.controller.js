@@ -1,6 +1,8 @@
-import reviewService from '../services/review.service.js';
+const reviewService = require('../services/review.service');
+const { publishEvent } = require('../../util/mqService');
+
 class ReviewController {
-  // TODO : userID duoc luu o dau
+  // Lấy Review theo User ID (API công khai)
   async getReviewsByUserId(req, res) {
     try {
       const userId = req.params.userId;
@@ -15,8 +17,7 @@ class ReviewController {
       const statusCode = error.message.includes('Invalid') ? 400 : 500;
       res.status(statusCode).json({ success: false, message: error.message });
     }
-  }
-  // TODO : listingId duoc luu o dau
+  } // Lấy Review theo Listing ID (API công khai)
   async getReviewsByListingId(req, res) {
     try {
       const listingId = req.params.listingId;
@@ -35,9 +36,23 @@ class ReviewController {
 
   async createReview(req, res) {
     try {
+      // 🔑 LẤY userId TỪ TOKEN (req.user)
       const userId = req.user._id;
       const { listingId, rating, content } = req.body;
+
       const review = await reviewService.createReview({ userId, listingId, rating, content });
+
+      // Publish event to RabbitMQ for analytics service
+      try {
+        await publishEvent('review_created', {
+          reviewId: review.id,
+          rating: review.rating,
+          listingId: review.listingId,
+        });
+      } catch (error) {
+        console.error('Error publishing review_created event:', error.message);
+      }
+
       res.status(201).json({
         success: true,
         data: review,
@@ -54,6 +69,7 @@ class ReviewController {
 
   async updateReview(req, res) {
     try {
+      // 🔑 LẤY userId TỪ TOKEN để kiểm tra quyền
       const userIdFromToken = req.user._id;
       const { rating, content } = req.body;
       const review = await reviewService.updateReview(req.params.id, { rating, content }, userIdFromToken);
@@ -62,19 +78,19 @@ class ReviewController {
         data: review,
       });
     } catch (error) {
-      console.error('Error updating review:', error);
-      const statusCode =
-        error.message.includes('Invalid') || error.message.includes('not found')
-          ? 404
-          : error.message.includes('must be')
-          ? 400
-          : 500;
+      console.error('Error updating review:', error); // Thêm xử lý lỗi Access denied (403)
+      const statusCode = error.message.includes('not found')
+        ? 404
+        : error.message.includes('Access denied')
+        ? 403
+        : 500;
       res.status(statusCode).json({ success: false, message: error.message });
     }
   }
 
   async deleteReview(req, res) {
     try {
+      // 🔑 LẤY userId TỪ TOKEN để kiểm tra quyền
       const userIdFromToken = req.user._id;
       const review = await reviewService.deleteReview(req.params.id, userIdFromToken);
       res.status(200).json({
@@ -83,8 +99,12 @@ class ReviewController {
         data: review,
       });
     } catch (error) {
-      console.error('Error deleting review:', error);
-      const statusCode = error.message === 'Review not found' ? 404 : error.message.includes('Invalid') ? 400 : 500;
+      console.error('Error deleting review:', error); // Thêm xử lý lỗi Access denied (403)
+      const statusCode = error.message.includes('not found')
+        ? 404
+        : error.message.includes('Access denied')
+        ? 403
+        : 500;
       res.status(statusCode).json({ success: false, message: error.message });
     }
   }
@@ -105,4 +125,4 @@ class ReviewController {
   }
 }
 
-export default new ReviewController();
+module.exports = new ReviewController();

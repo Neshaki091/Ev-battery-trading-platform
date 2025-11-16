@@ -1,11 +1,11 @@
-import prisma from '../../prisma/client.js';
+const prisma = require('../../prisma/client');
 
 class ReviewRepository {
   async findById(id) {
     return await prisma.review.findUnique({
       where: { id },
     });
-  }
+  } // 🆕 BỔ SUNG: Kiểm tra Review đã tồn tại theo cặp (userId, listingId)
   async findExisting(userId, listingId) {
     return await prisma.review.findFirst({
       where: { userId, listingId },
@@ -56,10 +56,11 @@ class ReviewRepository {
         by: ['rating'],
         where: { listingId },
         _count: { id: true },
+        orderBy: { rating: 'asc' }, // Sắp xếp cho dễ đọc
       }),
     ]);
     return { stats, distribution };
   }
 }
 
-export default new ReviewRepository();
+module.exports = new ReviewRepository();
