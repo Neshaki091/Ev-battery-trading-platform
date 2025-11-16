@@ -1,7 +1,23 @@
-FROM node:18
+# Base Image
+FROM node:18-alpine
 WORKDIR /app
-COPY package*.json ./
+
+# --- FIX LỖI SHARED ---
+# 1. Copy thư mục SHARED vào TRƯỚC
+COPY ./shared /app/shared
+
+# --- CÀI ĐẶT RIÊNG CHO SERVICE ---
+# 2. Copy package.json của service
+COPY ./services/listing-service/package*.json ./
+
+# 3. Cài đặt dependencies
 RUN npm install
-COPY . .
+
+# 4. Copy code của service đó
+COPY ./services/listing-service/ .
+
+# 5. Mở cổng
 EXPOSE 5000
-CMD [ "node", "server.js"]
+
+# 6. Lệnh khởi động
+CMD ["node", "server.js"]
