@@ -3,6 +3,7 @@ const Auction = require("../models/Auction.model");
 const AuctionBid = require("../models/AuctionBid.model");
 const { publishEvent } = require("../../util/mqService");
 
+// (Các hàm getStatus và syncStatus giữ nguyên)
 const getStatus = (auction) => {
   if (!auction) return "cancelled";
   if (auction.status === "cancelled" || auction.status === "settled") {
@@ -26,6 +27,7 @@ const syncStatus = async (auction, session) => {
 
 exports.createAuction = async (req, res) => {
   try {
+    // ... (code logic giữ nguyên)
     const {
       listingId,
       title,
@@ -80,7 +82,11 @@ exports.createAuction = async (req, res) => {
 
     res.status(201).json({ success: true, data: auction });
   } catch (error) {
-    console.error("createAuction error:", error);
+    // --- SỬA ĐỔI: Thêm log chi tiết ---
+    console.error(
+      `[createAuction] Error. Body=${JSON.stringify(req.body)}:`,
+      error
+    );
     res.status(500).json({
       success: false,
       message: "Không thể tạo phiên đấu giá.",
@@ -91,6 +97,7 @@ exports.createAuction = async (req, res) => {
 
 exports.listAuctions = async (req, res) => {
   try {
+    // ... (code logic giữ nguyên)
     const {
       status,
       listingId,
@@ -132,7 +139,11 @@ exports.listAuctions = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("listAuctions error:", error);
+    // --- SỬA ĐỔI: Thêm log chi tiết ---
+    console.error(
+      `[listAuctions] Error. Query=${JSON.stringify(req.query)}:`,
+      error
+    );
     res.status(500).json({
       success: false,
       message: "Không thể lấy danh sách đấu giá.",
@@ -143,6 +154,7 @@ exports.listAuctions = async (req, res) => {
 
 exports.getAuctionById = async (req, res) => {
   try {
+    // ... (code logic giữ nguyên)
     const { id } = req.params;
     const auction = await Auction.findById(id).populate("winningBid");
     if (!auction) {
@@ -163,7 +175,8 @@ exports.getAuctionById = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("getAuctionById error:", error);
+    // --- SỬA ĐỔI: Thêm log chi tiết ---
+    console.error(`[getAuctionById] Error. ID=${req.params.id}:`, error);
     res.status(500).json({
       success: false,
       message: "Không thể lấy thông tin phiên đấu giá.",
@@ -175,6 +188,7 @@ exports.getAuctionById = async (req, res) => {
 exports.placeBid = async (req, res) => {
   const session = await mongoose.startSession();
   try {
+    // ... (code logic giữ nguyên)
     const { id } = req.params;
     const { amount } = req.body;
 
@@ -254,21 +268,28 @@ exports.placeBid = async (req, res) => {
       },
     });
   } catch (error) {
-    await session.abortTransaction().catch(() => {});
-    console.error("placeBid error:", error);
+    await session.abortTransaction().catch(() => { });
+    // --- SỬA ĐỔI: Thêm log chi tiết ---
+    console.error(
+      `[placeBid] Error. ID=${req.params.id}, Body=${JSON.stringify(
+        req.body
+      )}:`,
+      error
+    );
     res.status(500).json({
       success: false,
       message: "Không thể đặt giá.",
       error: error.message,
     });
   } finally {
-    session.endSession().catch(() => {});
+    session.endSession().catch(() => { });
   }
 };
 
 exports.buyNow = async (req, res) => {
   const session = await mongoose.startSession();
   try {
+    // ... (code logic giữ nguyên)
     const { id } = req.params;
 
     session.startTransaction();
@@ -341,20 +362,22 @@ exports.buyNow = async (req, res) => {
       },
     });
   } catch (error) {
-    await session.abortTransaction().catch(() => {});
-    console.error("buyNow error:", error);
+    await session.abortTransaction().catch(() => { });
+    // --- SỬA ĐỔI: Thêm log chi tiết ---
+    console.error(`[buyNow] Error. ID=${req.params.id}:`, error);
     res.status(500).json({
       success: false,
       message: "Không thể thực hiện mua ngay.",
       error: error.message,
     });
   } finally {
-    session.endSession().catch(() => {});
+    session.endSession().catch(() => { });
   }
 };
 
 exports.cancelAuction = async (req, res) => {
   try {
+    // ... (code logic giữ nguyên)
     const { id } = req.params;
     const auction = await Auction.findById(id);
     if (!auction) {
@@ -366,10 +389,7 @@ exports.cancelAuction = async (req, res) => {
     const isOwner = String(auction.sellerId) === String(req.user._id);
     const isAdmin = req.user?.role === "admin";
     if (!isOwner && !isAdmin) {
-      return res.status(403).json({
-        success: false,
-        message: "Bạn không có quyền hủy phiên đấu giá này.",
-      });
+      D
     }
 
     const status = getStatus(auction);
@@ -389,7 +409,8 @@ exports.cancelAuction = async (req, res) => {
 
     res.json({ success: true, data: auction });
   } catch (error) {
-    console.error("cancelAuction error:", error);
+    // --- SỬA ĐỔI: Thêm log chi tiết ---
+    console.error(`[cancelAuction] Error. ID=${req.params.id}:`, error);
     res.status(500).json({
       success: false,
       message: "Không thể hủy phiên đấu giá.",
@@ -400,6 +421,7 @@ exports.cancelAuction = async (req, res) => {
 
 exports.settleAuction = async (req, res) => {
   try {
+    // ... (code logic giữ nguyên)
     const { id } = req.params;
     const auction = await Auction.findById(id);
     if (!auction) {
@@ -426,7 +448,8 @@ exports.settleAuction = async (req, res) => {
 
     res.json({ success: true, data: auction });
   } catch (error) {
-    console.error("settleAuction error:", error);
+    // --- SỬA ĐỔI: Thêm log chi tiết ---
+    console.error(`[settleAuction] Error. ID=${req.params.id}:`, error);
     res.status(500).json({
       success: false,
       message: "Không thể chốt phiên đấu giá.",
@@ -434,4 +457,3 @@ exports.settleAuction = async (req, res) => {
     });
   }
 };
-

@@ -15,7 +15,7 @@ async function ensureConnection() {
     connection = await amqp.connect(RABBITMQ_URL);
     channel = await connection.createChannel();
 
-    await channel.assertExchange(EXCHANGE_NAME, "fanout", { durable: true });
+    await channel.assertExchange(EXCHANGE_NAME, "direct", { durable: true });
     await channel.assertQueue(QUEUE_NAME, { durable: true });
 
     console.log("✅ Connected to RabbitMQ (auction-service)");
