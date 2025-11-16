@@ -1,0 +1,16 @@
+{
+  "name": "transaction-service",
+  "version": "1.0.0",
+  "description": "Transaction service for EV Trade Platform",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": ["transaction", "payment", "microservice"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {}
+}
+
