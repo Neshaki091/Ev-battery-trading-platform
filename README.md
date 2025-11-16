@@ -17,12 +17,6 @@ ev-trade-platform/
 │ │ ├── listing-service/
 │ │ ├── search-service/
 │ │ ├── transaction-service/
-│ │ ├── review-service/
-│ │ ├── report-service/
-│ │ ├── wishlist-service/
-│ │ ├── analytics-service/
-│ │ ├── chat-service/
-│ │ └── auction-service/
 │ │ └── review-service/
 | │ ├── report-service/      <-- MỚI
 | │ ├── wishlist-service/    <-- MỚI
