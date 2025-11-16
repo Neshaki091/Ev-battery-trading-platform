@@ -39,8 +39,6 @@ ev-trade-platform/
 │ ├── web/ # React / Next.js
 │ └── mobile/ # Flutter / React Native
 │
-├── shared/ # code, types, utils dùng chung
-│
 └── README.md
 ```
 
