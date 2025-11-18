@@ -1,0 +1,98 @@
+services:
+  # 1. RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"  # Cổng giao tiếp cho service
+      - "15672:15672" # Cổng giao diện web (guest/guest)
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+  
+  # 8. MongoDB (Database)
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db # Persist data
+    
+  # 2. Auth Service
+  auth-service:
+    build: ./services/auth-services        # Tìm Dockerfile trong thư mục auth-service
+    env_file: ./services/auth-services/.env # Tải file .env của service
+    ports:
+      - "3000:3000"               # Mở port 3000
+    depends_on:
+      mongodb:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+
+  # 3. Listing Service
+  listing-service:
+    build: ./services/listing-service
+    env_file: ./services/listing-service/.env
+    ports:
+      - "5000:5000"
+    depends_on:
+      mongodb:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+
+  # 4. Search Service
+  search-service:
+    build: ./services/search-service
+    env_file: ./services/search-service/.env
+    ports:
+      - "8004:8004"
+    depends_on:
+      mongodb:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+
+  # 5. Review Service
+  review-service:
+    build: ./services/reviews-service
+    env_file: ./services/reviews-service/.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      mongodb:
+        condition: service_started
+
+  # 6. Transaction Service
+  transaction-service:
+    build: ./services/transaction-service
+    env_file: ./services/transaction-service/.env
+    ports:
+      - "3001:3001" # Dùng port 3001
+    depends_on:
+      mongodb:
+        condition: service_started
+      
+  # 7. Nginx (API Gateway)
+  nginx:
+    build: ./services/API-Gateway/nginx                # Tìm Dockerfile trong thư mục nginx
+    ports:
+      - "8080:80"                 # Client sẽ gọi cổng 8080
+    depends_on:                   # Khởi động CUỐI CÙNG
+      - auth-service
+      - listing-service
+      - search-service
+      - review-service
+      - transaction-service
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  default:
+    driver: bridge

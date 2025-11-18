@@ -1,16 +1,27 @@
 {
   "name": "auction-service",
   "version": "1.0.0",
-  "description": "Auction service for EV Trade Platform",
+  "description": "Auction microservice for EVB platform",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "test": "echo \"No tests specified\" && exit 0"
   },
-  "keywords": ["auction", "bidding", "microservice"],
+  "keywords": [
+    "evb",
+    "auction",
+    "microservice"
+  ],
   "author": "",
   "license": "ISC",
-  "dependencies": {},
-  "devDependencies": {}
+  "type": "commonjs",
+  "dependencies": {
+    "amqplib": "^0.10.9",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.19.3"
+  }
 }
 
