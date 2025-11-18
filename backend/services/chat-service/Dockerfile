@@ -1,18 +1,13 @@
-# Auction Service Dockerfile
 FROM node:18-alpine
+
 WORKDIR /app
 
-# Copy shared utilities first
-COPY ./shared /app/shared
-
-# Copy package manifests and install deps
-COPY ./services/chat-service/package*.json ./
+COPY package*.json ./
 RUN npm install
 
-# Copy service source
-COPY ./services/chat-service/ .
+COPY . .
 
-EXPOSE 8087
+EXPOSE 3009
 
 CMD ["node", "index.js"]
 

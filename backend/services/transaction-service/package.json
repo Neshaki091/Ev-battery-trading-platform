@@ -1,23 +1,6 @@
 {
   "name": "transaction-service",
   "version": "1.0.0",
-<<<<<<< HEAD
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "body-parser": "^2.2.0",
-    "express": "^5.1.0",
-    "mongoose": "^8.19.2",
-    "pdfkit": "^0.17.2"
-  }
-}
-=======
   "description": "Transaction service for EV Trade Platform",
   "main": "server.js",
   "scripts": {
@@ -31,4 +14,3 @@
   "devDependencies": {}
 }
 
->>>>>>> 5bd1e5c88cfe33c41012aab38a338a93b1cbd387

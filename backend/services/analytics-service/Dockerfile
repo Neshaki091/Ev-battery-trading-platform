@@ -1,23 +1,13 @@
-# Base Image
 FROM node:18-alpine
+
 WORKDIR /app
 
-# --- FIX LỖI SHARED ---
-# 1. Copy thư mục SHARED vào TRƯỚC
-COPY ./shared /app/shared
-
-# --- CÀI ĐẶT RIÊNG CHO SERVICE ---
-# 2. Copy package.json của service
-COPY ./services/analytics-service/package*.json ./
-
-# 3. Cài đặt dependencies
+COPY package*.json ./
 RUN npm install
 
-# 4. Copy code của service đó
-COPY ./services/analytics-service/ .
+COPY . .
 
-# 5. Mở cổng
-EXPOSE 8003
+EXPOSE 3008
 
-# 6. Lệnh khởi động
 CMD ["node", "index.js"]
+
