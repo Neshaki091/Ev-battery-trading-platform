@@ -16,7 +16,12 @@ ev-trade-platform/
 │ │ ├── listing-service/
 │ │ ├── search-service/
 │ │ ├── transaction-service/
-│ │ └── admin-service/
+│ │ └── review-service/
+| │ ├── report-service/      <-- MỚI
+| │ ├── wishlist-service/    <-- MỚI
+│ | ├── analytics-service/   <-- MỚI
+│ | ├── chat-service/        <-- MỚI
+│ | └── auction-service/     <-- MỚI
 │ ├── shared/ #middleware dùng chung 
 │ └── docker-compose.yml
 │
@@ -40,7 +45,11 @@ ev-trade-platform/
 | `listing-service` | CRUD tin đăng xe/pin |
 | `search-service` | Tìm kiếm, lọc, gợi ý |
 | `transaction-service` | Giao dịch, thanh toán, hợp đồng |
-| `admin-service` | Quản trị, thống kê |
+| `review-services` | Đánh giá bài đăng |
+| `report-services` | Báo cáo bài đăng, người dùng |
+| `analytics-service` | Thống kê |
+| `chat-services` | Nhắn tin giữa người bán và người mua|
+| `auction-services` | Đấu giá |
 | `gateway` | API Gateway |
 | `frontend-web` | Giao diện web (React / Next.js) |
 | `frontend-mobile` | App Android (Flutter / React Native) |
