@@ -1,32 +1,23 @@
-// listing-service/util/authmiddleware.js
-const jwt = require('jsonwebtoken');
-const dotenv = require('dotenv');
-dotenv.config();
-exports.authmiddleware = async (req, res, next) => {
+// middleware/allowAdminOrInternal.js
+const jwt = require('jsonwebtoken'); // Hoặc bất cứ cách nào bạn dùng để giải mã token
+const { allowAdminRole } = require('../shared/adminMiddleware');
+const { authmiddleware } = require('../shared/authmiddleware');
+
+const allowAdminOrInternal = (req, res, next) => {
     try {
-        // KIỂM TRA HEADER TRƯỚC KHI SỬ DỤNG
-        if (!req.headers.authorization) {
-            return res.status(401).json({ message: 'Authorization header missing' });
+        // --- Điều kiện 1: Kiểm tra Service Nội Bộ ---
+        const internalKey = req.headers['x-internal-key'];
+        if (internalKey && internalKey === process.env.INTERNAL_API_KEY) {
+            // Đây là service nội bộ đáng tin cậy (như TransactionService)
+            return next();
         }
-
-        // Split chỉ khi header đã tồn tại
-        const token = req.headers.authorization.split(' ')[1];
-        if (!token) {
-            return res.status(401).json({ message: 'Token missing after "Bearer"' });
-        }
-
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-        // Đảm bảo bạn đang gán _id
-        req.user = {
-            _id: decoded.id, // Sử dụng _id để nhất quán với MongoDB
-            role: decoded.role
-        };
-
-        next();
-    } catch (error) {
-        // Ghi lại lỗi để debug (ví dụ: lỗi Invalid Signature)
-        console.error("Authentication Error:", error);
-        res.status(401).json({ message: 'Unauthorized or Invalid Token' });
+        authmiddleware(req, res, () => {
+            // --- Điều kiện 2: Kiểm tra Vai Trò Admin ---
+            allowAdminRole(req, res, next);
+        });
+    } catch (err) {
+        return res.status(401).json({ message: 'Invalid internal key.' });
     }
 };
+
+module.exports = { allowAdminOrInternal };
