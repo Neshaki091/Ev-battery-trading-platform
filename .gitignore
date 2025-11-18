@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+node_modules/
+.env
+=======
 # Dependencies
 node_modules/
 package-lock.json
@@ -39,3 +43,4 @@ build/
 *.key
 *.crt
 
+>>>>>>> 0f5c98e9e3f98c61d20a98ea35d881165dc44fb5
