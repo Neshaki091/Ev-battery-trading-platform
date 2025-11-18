@@ -6,7 +6,6 @@ Cấu trúc theo mô hình **Monorepo** gồm backend (microservices), frontend 
 ---
 
 ## 🏗 Cấu trúc thư mục
-
 ```bash
 ev-trade-platform/
 │
@@ -17,21 +16,7 @@ ev-trade-platform/
 │ │ ├── listing-service/
 │ │ ├── search-service/
 │ │ ├── transaction-service/
-<<<<<<< HEAD
-│ │ ├── review-service/
-│ │ ├── report-service/
-│ │ ├── wishlist-service/
-│ │ ├── analytics-service/
-│ │ ├── chat-service/
-│ │ └── auction-service/
-=======
-│ │ └── review-service/
-| │ ├── report-service/      <-- MỚI
-| │ ├── wishlist-service/    <-- MỚI
-│ | ├── analytics-service/   <-- MỚI
-│ | ├── chat-service/        <-- MỚI
-│ | └── auction-service/     <-- MỚI
->>>>>>> 43b426c330820e148bf3a6d2aeb32ea7abb47fbe
+│ │ └── admin-service/
 │ ├── shared/ #middleware dùng chung 
 │ └── docker-compose.yml
 │
@@ -43,7 +28,6 @@ ev-trade-platform/
 │
 └── README.md
 ```
-
 ---
 
 ## 🌱 Các nhánh chính (branches)
@@ -56,20 +40,7 @@ ev-trade-platform/
 | `listing-service` | CRUD tin đăng xe/pin |
 | `search-service` | Tìm kiếm, lọc, gợi ý |
 | `transaction-service` | Giao dịch, thanh toán, hợp đồng |
-<<<<<<< HEAD
-| `review-service` | Đánh giá bài đăng |
-| `report-service` | Báo cáo bài đăng, người dùng |
-| `wishlist-service` | Danh sách yêu thích |
-| `analytics-service` | Thống kê |
-| `chat-service` | Nhắn tin giữa người bán và người mua |
-| `auction-service` | Đấu giá |
-=======
-| `review-services` | Đánh giá bài đăng |
-| `report-services` | Báo cáo bài đăng, người dùng |
-| `analytics-service` | Thống kê |
-| `chat-services` | Nhắn tin giữa người bán và người mua|
-| `auction-services` | Đấu giá |
->>>>>>> 43b426c330820e148bf3a6d2aeb32ea7abb47fbe
+| `admin-service` | Quản trị, thống kê |
 | `gateway` | API Gateway |
 | `frontend-web` | Giao diện web (React / Next.js) |
 | `frontend-mobile` | App Android (Flutter / React Native) |
@@ -94,18 +65,25 @@ cd backend/services/auth-service
 git add .
 git commit -m "feat: add register/login API"
 git push origin auth-service
-```
+🧠 Quy ước commit
+feat: – thêm tính năng
 
-## 🧠 Quy ước commit
-- `feat:` – thêm tính năng
-- `fix:` – sửa lỗi
-- `chore:` – cấu hình, dọn dẹp
-- `docs:` – tài liệu, README
-- `test:` – thêm/sửa test
+fix: – sửa lỗi
 
-## ⚠️ Quy tắc chung
-- Không commit trực tiếp vào main hoặc develop
-- Mỗi người làm đúng branch của mình
-- Pull trước khi push (git pull origin <branch>)
-- Merge qua pull request để review code
+chore: – cấu hình, dọn dẹp
+
+docs: – tài liệu, README
+
+test: – thêm/sửa test
+
+⚠️ Quy tắc chung
+Không commit trực tiếp vào main hoặc develop
+
+Mỗi người làm đúng branch của mình
+
+Pull trước khi push (git pull origin <branch>)
+
+Merge qua pull request để review code
+
+
 

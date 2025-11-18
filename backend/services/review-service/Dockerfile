@@ -1,13 +1,18 @@
-FROM node:18-alpine
+FROM node:18
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY ./shared /app/shared
+
+COPY ./services/reviews-service/package*.json ./
+
 RUN npm install
 
-COPY . .
+COPY ./services/reviews-service/ .
 
-EXPOSE 3005
+# Generate Prisma client
+RUN npx prisma generate
 
-CMD ["node", "server.js"]
+EXPOSE 8000
 
+CMD ["npm", "start"]
