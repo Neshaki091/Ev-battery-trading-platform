@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Services sẽ được thêm vào đây khi phát triển
+  # auth-service:
+  # listing-service:
+  # search-service:
+  # transaction-service:
+  # review-service:
+  # report-service:
+  # wishlist-service:
+  # analytics-service:
+  # chat-service:
+  # auction-service:
+
+volumes:
+  mongodb_data:
+

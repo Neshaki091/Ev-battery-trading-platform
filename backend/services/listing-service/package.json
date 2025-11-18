@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "dependencies": {
     "body-parser": "^2.2.0",
     "cors": "^2.8.5",
@@ -7,3 +8,20 @@
     "uuid": "^13.0.0"
   }
 }
+=======
+  "name": "listing-service",
+  "version": "1.0.0",
+  "description": "Listing service for EV Trade Platform",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": ["listing", "crud", "microservice"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {}
+}
+
+>>>>>>> 5bd1e5c88cfe33c41012aab38a338a93b1cbd387
