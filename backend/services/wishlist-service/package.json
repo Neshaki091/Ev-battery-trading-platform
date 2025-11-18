@@ -1,0 +1,16 @@
+{
+  "name": "wishlist-service",
+  "version": "1.0.0",
+  "description": "Wishlist service for EV Trade Platform",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": ["wishlist", "favorite", "microservice"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {}
+}
+

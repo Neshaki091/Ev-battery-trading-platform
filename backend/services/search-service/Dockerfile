@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 1️⃣ Dùng image Node.js chính thức, bản nhỏ gọn
 FROM node:18-alpine
 
@@ -18,3 +19,18 @@ EXPOSE 8004
 
 # 7️⃣ Chạy server
 CMD ["node", "server.js"]
+=======
+FROM node:18-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+EXPOSE 3003
+
+CMD ["node", "server.js"]
+
+>>>>>>> origin
