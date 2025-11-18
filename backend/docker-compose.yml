@@ -1,98 +1,142 @@
 services:
-  # 1. RabbitMQ
+
   rabbitmq:
     image: rabbitmq:3-management
     ports:
-      - "5672:5672"  # Cổng giao tiếp cho service
-      - "15672:15672" # Cổng giao diện web (guest/guest)
+      - "5672:5672"
+      - "15672:15672"
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
       interval: 10s
       timeout: 5s
-      retries: 3
-      start_period: 15s
-  
-  # 8. MongoDB (Database)
+      retries: 5
+
   mongodb:
     image: mongo
     container_name: mongodb
     ports:
       - "27017:27017"
     volumes:
-      - mongodb_data:/data/db # Persist data
-    
-  # 2. Auth Service
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   auth-service:
-    build: ./services/auth-services        # Tìm Dockerfile trong thư mục auth-service
-    env_file: ./services/auth-services/.env # Tải file .env của service
-    ports:
-      - "3000:3000"               # Mở port 3000
+    build:
+      context: .
+      dockerfile: ./services/auth-services/Dockerfile
+    env_file: ./services/auth-services/.env
     depends_on:
-      mongodb:
-        condition: service_started
-      rabbitmq:
-        condition: service_started
+      - mongodb
 
-  # 3. Listing Service
   listing-service:
-    build: ./services/listing-service
+    build:
+      context: .
+      dockerfile: ./services/listing-service/Dockerfile
     env_file: ./services/listing-service/.env
-    ports:
-      - "5000:5000"
     depends_on:
-      mongodb:
-        condition: service_started
-      rabbitmq:
-        condition: service_started
+      - rabbitmq
+      - mongodb
 
-  # 4. Search Service
   search-service:
-    build: ./services/search-service
+    build:
+      context: .
+      dockerfile: ./services/search-service/Dockerfile
     env_file: ./services/search-service/.env
-    ports:
-      - "8004:8004"
     depends_on:
-      mongodb:
-        condition: service_started
-      rabbitmq:
-        condition: service_started
+      - rabbitmq
+      - mongodb
 
-  # 5. Review Service
   review-service:
-    build: ./services/reviews-service
+    build:
+      context: .
+      dockerfile: ./services/reviews-service/Dockerfile
     env_file: ./services/reviews-service/.env
-    ports:
-      - "8000:8000"
     depends_on:
-      mongodb:
-        condition: service_started
+      - mongodb
 
-  # 6. Transaction Service
   transaction-service:
-    build: ./services/transaction-service
+    build:
+      context: .
+      dockerfile: ./services/transaction-service/Dockerfile
     env_file: ./services/transaction-service/.env
-    ports:
-      - "3001:3001" # Dùng port 3001
     depends_on:
-      mongodb:
-        condition: service_started
-      
-  # 7. Nginx (API Gateway)
+      - mongodb
+
+  reports-service:
+    build:
+      context: .
+      dockerfile: ./services/reports-service/Dockerfile
+    env_file: ./services/reports-service/.env
+    depends_on:
+      - mongodb
+
+  wishlist-service:
+    build:
+      context: .
+      dockerfile: ./services/wishlist-service/Dockerfile
+    env_file: ./services/wishlist-service/.env
+    depends_on:
+      - mongodb
+
+  analytics-service:
+    build:
+      context: .
+      dockerfile: ./services/analytics-service/Dockerfile
+    env_file: ./services/analytics-service/.env
+    depends_on:
+      - rabbitmq
+      - mongodb
+
+  auction-service:
+    build:
+      context: .
+      dockerfile: ./services/auction-service/Dockerfile
+    env_file: ./services/auction-service/.env
+    depends_on:
+      - rabbitmq
+      - mongodb
+
+  chat-service:
+    build:
+      context: .
+      dockerfile: ./services/chat-service/Dockerfile
+    env_file: ./services/chat-service/.env
+    volumes:
+      - ./creds:/app/creds:ro
+    depends_on:
+      - rabbitmq
+
   nginx:
-    build: ./services/API-Gateway/nginx                # Tìm Dockerfile trong thư mục nginx
+    build:
+      context: .
+      dockerfile: ./gateway/nginx/Dockerfile
     ports:
-      - "8080:80"                 # Client sẽ gọi cổng 8080
-    depends_on:                   # Khởi động CUỐI CÙNG
+      - "80:80"
+    depends_on:
       - auth-service
       - listing-service
       - search-service
       - review-service
       - transaction-service
+      - reports-service
+      - wishlist-service
+      - analytics-service
+      - auction-service
+      - chat-service
+
+  cloudflare-tunnel:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --config /etc/cloudflared/config.yml run
+    volumes:
+      - ./config.yml:/etc/cloudflared/config.yml:ro
+      - ./creds:/etc/cloudflared/creds:ro
+    environment:
+      credentials-file: /etc/cloudflared/creds/c59d0882-668b-493e-823b-7ce232ab4210.json
 
 volumes:
   mongodb_data:
-    driver: local
-
-networks:
-  default:
-    driver: bridge
