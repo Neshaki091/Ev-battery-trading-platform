@@ -1,16 +1,13 @@
 {
-  "name": "listing-service",
-  "version": "1.0.0",
-  "description": "Listing service for EV Trade Platform",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
-  },
-  "keywords": ["listing", "crud", "microservice"],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    
+    "@google/generative-ai": "^0.24.1",
+    "amqplib": "^0.10.9",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.19.2"
+  }
 }
-

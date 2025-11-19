@@ -7,10 +7,20 @@
     "start": "node index.js",
     "dev": "nodemon index.js"
   },
-  "keywords": ["analytics", "statistics", "microservice"],
+  "keywords": [
+    "analytics",
+    "statistics",
+    "microservice"
+  ],
   "author": "",
   "license": "ISC",
-  "dependencies": {},
+  "dependencies": {
+    "amqplib": "^0.10.9",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.19.3",
+    "moment": "^2.30.1"
+  },
   "devDependencies": {}
 }
-

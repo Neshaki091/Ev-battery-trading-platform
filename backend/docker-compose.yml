@@ -1,0 +1,142 @@
+services:
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: ./services/auth-service/Dockerfile
+    env_file: ./services/auth-service/.env
+    depends_on:
+      - mongodb
+
+  listing-service:
+    build:
+      context: .
+      dockerfile: ./services/listing-service/Dockerfile
+    env_file: ./services/listing-service/.env
+    depends_on:
+      - rabbitmq
+      - mongodb
+
+  search-service:
+    build:
+      context: .
+      dockerfile: ./services/search-service/Dockerfile
+    env_file: ./services/search-service/.env
+    depends_on:
+      - rabbitmq
+      - mongodb
+
+  review-service:
+    build:
+      context: .
+      dockerfile: ./services/review-service/Dockerfile
+    env_file: ./services/review-service/.env
+    depends_on:
+      - mongodb
+
+  transaction-service:
+    build:
+      context: .
+      dockerfile: ./services/transaction-service/Dockerfile
+    env_file: ./services/transaction-service/.env
+    depends_on:
+      - mongodb
+
+  reports-service:
+    build:
+      context: .
+      dockerfile: ./services/report-service/Dockerfile
+    env_file: ./services/report-service/.env
+    depends_on:
+      - mongodb
+
+  wishlist-service:
+    build:
+      context: .
+      dockerfile: ./services/wishlist-service/Dockerfile
+    env_file: ./services/wishlist-service/.env
+    depends_on:
+      - mongodb
+
+  analytics-service:
+    build:
+      context: .
+      dockerfile: ./services/analytics-service/Dockerfile
+    env_file: ./services/analytics-service/.env
+    depends_on:
+      - rabbitmq
+      - mongodb
+
+  auction-service:
+    build:
+      context: .
+      dockerfile: ./services/auction-service/Dockerfile
+    env_file: ./services/auction-service/.env
+    depends_on:
+      - rabbitmq
+      - mongodb
+
+  chat-service:
+    build:
+      context: .
+      dockerfile: ./services/chat-service/Dockerfile
+    env_file: ./services/chat-service/.env
+    volumes:
+      - ./creds:/app/creds:ro
+    depends_on:
+      - rabbitmq
+
+  nginx:
+    build:
+      context: .
+      dockerfile: ./gateway/nginx/Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - auth-service
+      - listing-service
+      - search-service
+      - review-service
+      - transaction-service
+      - reports-service
+      - wishlist-service
+      - analytics-service
+      - auction-service
+      - chat-service
+
+  cloudflare-tunnel:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --config /etc/cloudflared/config.yml run
+    volumes:
+      - ./config.yml:/etc/cloudflared/config.yml:ro
+      - ./creds:/etc/cloudflared/creds:ro
+    environment:
+      credentials-file: /etc/cloudflared/creds/c59d0882-668b-493e-823b-7ce232ab4210.json
+
+volumes:
+  mongodb_data:

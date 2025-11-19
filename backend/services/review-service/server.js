@@ -1,7 +1,7 @@
 const express = require('express');
 const prisma = require('./prisma/client');
 const reviewController = require('./src/controllers/review.controller');
-const { authmiddleware } = require('./shared/authmiddleware'); // Giả sử đặt ở /util
+const { authmiddleware } = require('./shared/authmiddleware'); // Giả sử đặt ở /util 
 const app = express();
 const port = process.env.PORT || 8000;
 app.use(express.json());
