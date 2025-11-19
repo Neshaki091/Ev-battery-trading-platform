@@ -1,8 +1,8 @@
-tunnel: c59d0882-668b-493e-823b-7ce232ab4210
-credentials-file: /etc/cloudflared/creds/c59d0882-668b-493e-823b-7ce232ab4210.json
+tunnel: aad44139-c1c4-4156-8b46-90deb5010c8c
+credentials-file: /etc/cloudflared/creds/aad44139-c1c4-4156-8b46-90deb5010c8c.json
 ingress:
-  - hostname: api.waterbase.click
+  - hostname: api.evbtranding.site
     service: http://backend-nginx-1:80
-  - hostname: www.waterbase.click
+  - hostname: www.evbtranding.site
     service: http://backend-nginx-1:80
   - service: http_status:404
