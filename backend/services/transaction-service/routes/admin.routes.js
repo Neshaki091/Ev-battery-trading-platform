@@ -2,8 +2,8 @@
 const express = require('express');
 const router = express.Router();
 const feeController = require('../controllers/adminFeeController');
-const { authmiddleware } = require('../utils/authmiddleware');
-const { allowAdminRole } = require('../utils/adminMiddleware');
+const { authmiddleware, } = require('../shared/authmiddleware');
+const { allowAdminRole } = require('../shared/adminMiddleware');
 
 // Tất cả các route admin đều yêu cầu Auth và Admin Role
 router.use(authmiddleware, allowAdminRole);

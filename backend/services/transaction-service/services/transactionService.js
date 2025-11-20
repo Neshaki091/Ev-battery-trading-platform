@@ -3,7 +3,7 @@ const Transaction = require('../models/schemas/Transaction');
 
 // Tạo transaction
 const createTransaction = async (data) => {
-  if (!['xe', 'pin'].includes(data.type)) {
+  if (!['xe', 'pin', ].includes(data.type)) {
     throw new Error('Type phải là "xe" hoặc "pin"');
   }
   

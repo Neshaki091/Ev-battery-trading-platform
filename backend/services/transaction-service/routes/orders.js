@@ -1,6 +1,6 @@
 const express = require('express');
 const orderController = require('../controllers/orderController');
-const { authmiddleware } = require('../utils/authmiddleware'); // Cần authmiddleware
+const { authmiddleware } = require('../shared/authmiddleware');
 
 const router = express.Router();
 

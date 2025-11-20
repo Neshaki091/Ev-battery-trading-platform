@@ -15,4 +15,3 @@ COPY ./services/auction-service/ .
 EXPOSE 8070
 
 CMD ["node", "index.js"]
-

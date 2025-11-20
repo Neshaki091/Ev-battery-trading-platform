@@ -1,8 +1,5 @@
 const mongoose = require('mongoose');
 
-// Import models trước khi dùng ref (để register)
-const User = require('./User');
-const Listing = require('./Listing');
 
 const transactionSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -14,7 +11,16 @@ const transactionSchema = new mongoose.Schema({
   paidAt: { type: Date },
   // BỔ SUNG: Fields liên quan đến phí/hoa hồng
   commissionRate: { type: Number, default: 0.05 },
-  commissionAmount: { type: Number, default: 0 }
+  commissionAmount: { type: Number, default: 0 },
+  // 🆕 BỔ SUNG: Thông tin thanh toán từ Casso webhook
+  cassoPayment: {
+    transId: { type: String },
+    description: { type: String },
+    amount: { type: Number },
+    bankCode: { type: String },
+    paidAt: { type: Date },
+    raw: { type: mongoose.Schema.Types.Mixed }
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Transaction', transactionSchema);

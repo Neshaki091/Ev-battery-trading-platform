@@ -22,7 +22,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:80',   // ← sửa đúng cổng nginx
+        target: 'https://api.evbtranding.site',   // ← sửa đúng cổng nginx
         changeOrigin: true,
         secure: false,
         ws: true, // hỗ trợ WebSocket chat
