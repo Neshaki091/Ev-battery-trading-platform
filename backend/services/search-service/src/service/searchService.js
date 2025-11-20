@@ -149,4 +149,3 @@ exports.getPublicListings = async (req, res) => {
         res.status(500).json({ message: 'Không thể thực hiện tìm kiếm.' });
     }
 };
-

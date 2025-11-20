@@ -2,11 +2,11 @@
 const express = require('express');
 const router = express.Router();
 const reportController = require('../controllers/report.controller');
-const { authmiddleware } = require('../../shared/authmiddleware');
+const { authmiddleware, } = require('../../shared/authmiddleware');
 const { allowAdminRole } = require('../../shared/adminMiddleware');
 
 // Public Route
-router.post('/', authmiddleware, reportController.createReport);
+router.post('/', authmiddleware, reportController.createReport); 
 
 // Admin Routes (Yêu cầu Admin Role)
 router.get('/', authmiddleware, allowAdminRole, reportController.getAllReports);

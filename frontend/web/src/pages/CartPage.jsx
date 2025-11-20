@@ -402,14 +402,25 @@ function CartPage() {
                       {/* Cột bên phải: nút hành động */}
                       <div className="flex-shrink-0 flex flex-col items-end gap-2">
                         {item.status === 'pending' && (
-                          <button
-                            onClick={() => handlePayOrder(item.id)}
-                            className="btn btn-primary flex items-center justify-center gap-2"
-                            style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
-                          >
-                            <IconCreditCard />
-                            Thanh toán
-                          </button>
+                          <>
+                            <Link
+                              to={`/payment/${item.id}`}
+                              className="btn btn-primary flex items-center justify-center gap-2"
+                              style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
+                            >
+                              <IconCreditCard />
+                              Thanh toán qua Casso
+                            </Link>
+                            <button
+                              onClick={() => handlePayOrder(item.id)}
+                              className="btn btn-ghost flex items-center justify-center gap-2"
+                              style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
+                              title="Thanh toán thủ công (không qua Casso)"
+                            >
+                              <IconCreditCard />
+                              Thanh toán thủ công
+                            </button>
+                          </>
                         )}
 
                         {item.status === 'paid' && (

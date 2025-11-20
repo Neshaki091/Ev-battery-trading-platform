@@ -8,13 +8,13 @@ COPY ./shared /app/shared
 
 # --- CÀI ĐẶT RIÊNG CHO SERVICE ---
 # 2. Copy package.json của service
-COPY ./services/report-service/package*.json ./
+COPY ./services/reports-service/package*.json ./
 
 # 3. Cài đặt dependencies
 RUN npm install
 
 # 4. Copy code của service đó
-COPY ./services/report-service/ .
+COPY ./services/reports-service/ .
 
 # 5. Mở cổng
 EXPOSE 8001

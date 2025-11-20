@@ -15,6 +15,7 @@ import AdminDashboardPage from './pages/AdminDashboardPage';
 import AuctionsPage from './pages/AuctionsPage';
 import AuctionDetailPage from './pages/AuctionDetailPage';
 import ChatRoomPage from './pages/ChatRoomPage';
+import PaymentPage from './pages/PaymentPage';
 import './App.css';
 import logo from './assets/Logo_EVB_Light.png';
 
@@ -255,6 +256,7 @@ function AppLayout() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/cart" element={<CartPage />} />
+            <Route path="/payment/:orderId" element={<PaymentPage />} />
             <Route path="/create" element={<CreateListingPage />} />
             <Route path="/edit/:id" element={<EditListingPage />} />
             <Route path="/wishlist" element={<WishlistPage />} />
