@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const ListingSchema = new mongoose.Schema(
   {
-    // --- TRƯỜNG CƠ BẢN VÀ BẮT BUỘC ---
+    /// --- TRƯỜNG CƠ BẢN VÀ BẮT BUỘC ---
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -11,7 +11,7 @@ const ListingSchema = new mongoose.Schema(
     title: {
       type: String,
       trim: true,
-      required: true, // Thêm required cho title
+      required: true, /// Thêm required cho title
     },
     description: {
       type: String,
@@ -51,21 +51,21 @@ const ListingSchema = new mongoose.Schema(
       },
     ],
 
-    // --- TRƯỜNG LIÊN KẾT (Dành cho việc Fetch dữ liệu chi tiết) ---
+    /// --- TRƯỜNG LIÊN KẾT (Dành cho việc Fetch dữ liệu chi tiết) ---
     vehicle_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Vehicle",
-      required: function() { return this.category === 'Vehicle'; } // Bắt buộc nếu là Vehicle
+      required: function() { return this.category === 'Vehicle'; } /// Bắt buộc nếu là Vehicle
     },
     battery_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Battery",
-      required: function() { return this.category === 'Battery'; } // Bắt buộc nếu là Battery
+      required: function() { return this.category === 'Battery'; } /// Bắt buộc nếu là Battery
     },
 
-    // --- TRƯỜNG TÌM KIẾM CHI TIẾT (Được sao chép từ Schema Search) ---
-    // Mục tiêu: Giảm thiểu việc Search Service phải liên kết lại Listing Service
-    // Các trường này nên được điền khi tạo/cập nhật Listing.
+    /// --- TRƯỜNG TÌM KIẾM CHI TIẾT (Được sao chép từ Schema Search) ---
+    /// Mục tiêu: Giảm thiểu việc Search Service phải liên kết lại Listing Service
+    /// Các trường này nên được điền khi tạo/cập nhật Listing.
     vehicle_brand: { type: String, trim: true }, 
     vehicle_model: { type: String, trim: true }, 
     vehicle_manufacturing_year: { type: Number }, 
