@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "415335963270",
+    "firebase_url": "https://evb-trading-platform-default-rtdb.firebaseio.com",
+    "project_id": "evb-trading-platform",
+    "storage_bucket": "evb-trading-platform.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:415335963270:android:4f57cf87734a169890cf07",
+        "android_client_info": {
+          "package_name": "com.example.frontend_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvDWMf3gU-dORNqZbakKok1Nuw3O-b7AY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
