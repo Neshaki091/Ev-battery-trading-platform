@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+<<<<<<< HEAD
+=======
 import 'package:go_router/go_router.dart';
+>>>>>>> temp
 
 import '../../../core/widgets/app_loading_indicator.dart';
 import '../../../core/widgets/error_view.dart';
 import '../controllers/auction_providers.dart';
+<<<<<<< HEAD
+import 'auctions_screen.dart';
+=======
+>>>>>>> temp
 
 class AuctionDetailScreen extends ConsumerStatefulWidget {
   const AuctionDetailScreen({
@@ -65,7 +72,14 @@ class _AuctionDetailScreenState
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+<<<<<<< HEAD
+          onPressed: () => Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const AuctionsScreen()),
+          ),
+=======
           onPressed: () => context.pop(),
+>>>>>>> temp
         ),
         title: const Text('Chi tiết đấu giá'),
       ),

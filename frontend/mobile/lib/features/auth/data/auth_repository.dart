@@ -22,15 +22,21 @@ class AuthRepository {
 
     final payload = response.data ?? {};
     final token = payload['accessToken']?.toString();
+<<<<<<< HEAD
+=======
     final refreshToken = payload['refreshToken']?.toString();
+>>>>>>> temp
     final userMap = _extractUser(payload);
 
     if (token != null) {
       await _storage.saveToken(token);
     }
+<<<<<<< HEAD
+=======
     if (refreshToken != null) {
       await _storage.saveRefreshToken(refreshToken);
     }
+>>>>>>> temp
     await _storage.saveUserJson(userMap);
     return User.fromJson(userMap);
   }
@@ -55,15 +61,21 @@ class AuthRepository {
 
     final payload = response.data ?? {};
     final token = payload['accessToken']?.toString();
+<<<<<<< HEAD
+=======
     final refreshToken = payload['refreshToken']?.toString();
+>>>>>>> temp
     final userMap = _extractUser(payload);
 
     if (token != null) {
       await _storage.saveToken(token);
     }
+<<<<<<< HEAD
+=======
     if (refreshToken != null) {
       await _storage.saveRefreshToken(refreshToken);
     }
+>>>>>>> temp
     await _storage.saveUserJson(userMap);
     return User.fromJson(userMap);
   }
@@ -78,6 +90,8 @@ class AuthRepository {
     return User.fromJson(data);
   }
 
+<<<<<<< HEAD
+=======
   Future<User> getProfile() async {
     final response = await _apiClient.get<Map<String, dynamic>>(
       '/auth/me',
@@ -117,11 +131,15 @@ class AuthRepository {
     return User.fromJson(userMap);
   }
 
+>>>>>>> temp
   Map<String, dynamic> _extractUser(Map<String, dynamic> payload) {
     final userRaw = payload['user'];
     final role = payload['role'] ?? payload['user']?['role'];
     final isActive = payload['isActive'] ?? payload['user']?['isActive'];
+<<<<<<< HEAD
+=======
     final wallet = payload['wallet'] ?? payload['user']?['wallet'];
+>>>>>>> temp
 
     final map = <String, dynamic>{};
     if (userRaw is Map<String, dynamic>) {
@@ -131,6 +149,10 @@ class AuthRepository {
     }
     if (role != null) map['role'] = role;
     if (isActive != null) map['isActive'] = isActive;
+<<<<<<< HEAD
+    return map;
+  }
+=======
     if (wallet != null) map['wallet'] = wallet;
 
     // Extract profile fields if they exist
@@ -149,5 +171,6 @@ class AuthRepository {
   Future<void> put<T>(String path, {Object? data, bool requiresAuth = false}) async {
     await _apiClient.put<T>(path, data: data, requiresAuth: requiresAuth);
   }
+>>>>>>> temp
 }
 

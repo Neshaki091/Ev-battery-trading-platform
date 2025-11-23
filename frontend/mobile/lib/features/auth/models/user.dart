@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+<<<<<<< HEAD
+=======
 class Wallet extends Equatable {
   const Wallet({
     this.bankName = '',
@@ -57,6 +59,7 @@ class Wallet extends Equatable {
   List<Object?> get props => [bankName, bankCode, accountNumber, accountName, branch];
 }
 
+>>>>>>> temp
 class User extends Equatable {
   const User({
     required this.id,
@@ -64,6 +67,12 @@ class User extends Equatable {
     required this.username,
     required this.role,
     required this.isActive,
+<<<<<<< HEAD
+  });
+
+  factory User.fromJson(Map<String, dynamic> json) => User(
+        id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
+=======
     this.firstName,
     this.lastName,
     this.phonenumber,
@@ -72,14 +81,18 @@ class User extends Equatable {
 
   factory User.fromJson(Map<String, dynamic> json) => User(
         id: json['_id']?.toString() ?? json['id']?.toString() ?? json['user_id']?.toString() ?? '',
+>>>>>>> temp
         email: json['email']?.toString() ?? '',
         username: json['username']?.toString() ?? json['name']?.toString() ?? 'Người dùng',
         role: json['role']?.toString() ?? 'user',
         isActive: json['isActive'] == null ? true : json['isActive'] as bool,
+<<<<<<< HEAD
+=======
         firstName: json['firstName']?.toString(),
         lastName: json['lastName']?.toString(),
         phonenumber: json['phonenumber']?.toString(),
         wallet: Wallet.fromJson(json['wallet'] as Map<String, dynamic>?),
+>>>>>>> temp
       );
 
   Map<String, dynamic> toJson() => {
@@ -88,10 +101,13 @@ class User extends Equatable {
         'username': username,
         'role': role,
         'isActive': isActive,
+<<<<<<< HEAD
+=======
         if (firstName != null) 'firstName': firstName,
         if (lastName != null) 'lastName': lastName,
         if (phonenumber != null) 'phonenumber': phonenumber,
         'wallet': wallet.toJson(),
+>>>>>>> temp
       };
 
   final String id;
@@ -99,6 +115,13 @@ class User extends Equatable {
   final String username;
   final String role;
   final bool isActive;
+<<<<<<< HEAD
+
+  bool get isAdmin => role.toLowerCase() == 'admin';
+
+  @override
+  List<Object?> get props => [id, email, username, role, isActive];
+=======
   final String? firstName;
   final String? lastName;
   final String? phonenumber;
@@ -132,5 +155,6 @@ class User extends Equatable {
 
   @override
   List<Object?> get props => [id, email, username, role, isActive, firstName, lastName, phonenumber, wallet];
+>>>>>>> temp
 }
 

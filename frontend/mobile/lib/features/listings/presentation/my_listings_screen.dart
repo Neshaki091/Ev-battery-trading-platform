@@ -6,6 +6,10 @@ import '../../../core/widgets/app_loading_indicator.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/error_view.dart';
 import '../controllers/listing_providers.dart';
+<<<<<<< HEAD
+import 'home_screen.dart';
+=======
+>>>>>>> temp
 import 'widgets/listing_card.dart';
 
 class MyListingsScreen extends ConsumerWidget {
@@ -18,7 +22,14 @@ class MyListingsScreen extends ConsumerWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+<<<<<<< HEAD
+          onPressed: () => Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+          ),
+=======
           onPressed: () => context.pop(),
+>>>>>>> temp
         ),
         title: const Text('Tin đăng của tôi'),
       ),

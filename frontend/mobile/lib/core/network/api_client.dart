@@ -50,6 +50,8 @@ class ApiClient {
     );
   }
 
+<<<<<<< HEAD
+=======
   Future<Response<T>> put<T>(
     String path, {
     Object? data,
@@ -61,6 +63,7 @@ class ApiClient {
     );
   }
 
+>>>>>>> temp
   Future<Response<T>> patch<T>(
     String path, {
     Object? data,

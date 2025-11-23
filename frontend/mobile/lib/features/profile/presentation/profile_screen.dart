@@ -3,7 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../auth/controllers/auth_controller.dart';
+<<<<<<< HEAD
+import '../../listings/presentation/home_screen.dart';
+=======
 import 'edit_profile_screen.dart';
+>>>>>>> temp
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -18,7 +22,14 @@ class ProfileScreen extends ConsumerWidget {
         appBar: AppBar(
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
+<<<<<<< HEAD
+            onPressed: () => Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const HomeScreen()),
+            ),
+=======
             onPressed: () => context.pop(),
+>>>>>>> temp
           ),
           title: const Text('Thông tin cá nhân'),
         ),
@@ -42,6 +53,14 @@ class ProfileScreen extends ConsumerWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+<<<<<<< HEAD
+          onPressed: () => Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+          ),
+        ),
+        title: const Text('Thông tin cá nhân'),
+=======
           onPressed: () => context.pop(),
         ),
         title: const Text('Thông tin cá nhân'),
@@ -58,10 +77,26 @@ class ProfileScreen extends ConsumerWidget {
             },
           ),
         ],
+>>>>>>> temp
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
+<<<<<<< HEAD
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: CircleAvatar(
+              radius: 30,
+              child: Text(user.username.characters.first.toUpperCase()),
+            ),
+            title: Text(user.username),
+            subtitle: Text(user.email),
+            trailing: Chip(
+              label: Text(user.role),
+            ),
+          ),
+          const SizedBox(height: 24),
+=======
           // User Info Card
           Card(
             child: Padding(
@@ -154,6 +189,7 @@ class ProfileScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           // Menu Card
+>>>>>>> temp
           Card(
             child: Column(
               children: [
@@ -192,6 +228,8 @@ class ProfileScreen extends ConsumerWidget {
       ),
     );
   }
+<<<<<<< HEAD
+=======
 
   Widget _buildInfoRow(String label, String value) {
     return Padding(
@@ -213,5 +251,6 @@ class ProfileScreen extends ConsumerWidget {
       ),
     );
   }
+>>>>>>> temp
 }
 

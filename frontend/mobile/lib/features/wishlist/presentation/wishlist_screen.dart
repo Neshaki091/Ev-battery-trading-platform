@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
+
+import '../../listings/presentation/home_screen.dart';
+=======
 import 'package:go_router/go_router.dart';
+>>>>>>> temp
 
 class WishlistScreen extends StatelessWidget {
   const WishlistScreen({super.key});
@@ -10,7 +15,14 @@ class WishlistScreen extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+<<<<<<< HEAD
+          onPressed: () => Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+          ),
+=======
           onPressed: () => context.pop(),
+>>>>>>> temp
         ),
         title: const Text('Tin đã lưu'),
       ),

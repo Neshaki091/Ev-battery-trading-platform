@@ -7,6 +7,10 @@ import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/error_view.dart';
 import '../controllers/listing_providers.dart';
 import '../controllers/listing_search_controller.dart';
+<<<<<<< HEAD
+import 'home_screen.dart';
+=======
+>>>>>>> temp
 import 'widgets/listing_card.dart';
 import 'widgets/listing_filters_sheet.dart';
 
@@ -35,7 +39,14 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+<<<<<<< HEAD
+          onPressed: () => Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+          ),
+=======
           onPressed: () => context.pop(),
+>>>>>>> temp
         ),
         title: const Text('Kho sản phẩm'),
         actions: [
