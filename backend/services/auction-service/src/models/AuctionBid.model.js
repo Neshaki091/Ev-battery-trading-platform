@@ -19,6 +19,22 @@ const AuctionBidSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
+    // Deposit tracking
+    depositLocked: {
+      type: Number,
+      default: 0,
+      min: 0,
+      // Số tiền đã khóa trong ví cho bid này
+    },
+    isReleased: {
+      type: Boolean,
+      default: false,
+      // Đã hoàn tiền chưa (khi bị outbid)
+    },
+    releasedAt: {
+      type: Date,
+      // Thời điểm hoàn tiền
+    },
   },
   { timestamps: true }
 );

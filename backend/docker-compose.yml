@@ -41,8 +41,6 @@ services:
       timeout: 5s
       retries: 5
     mem_limit: 512m
-
-  # ... (các services khác)
   auth-service:
     build:
       context: .
@@ -81,6 +79,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+
 
   transaction-service:
     build:
@@ -172,3 +171,4 @@ services:
 volumes:
   mongodb_data:
   postgres_data:
+

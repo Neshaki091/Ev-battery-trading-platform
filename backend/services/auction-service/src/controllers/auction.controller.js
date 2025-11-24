@@ -389,7 +389,10 @@ exports.cancelAuction = async (req, res) => {
     const isOwner = String(auction.sellerId) === String(req.user._id);
     const isAdmin = req.user?.role === "admin";
     if (!isOwner && !isAdmin) {
-      D
+      return res.status(403).json({
+        success: false,
+        message: "Bạn không có quyền hủy phiên đấu giá này.",
+      });
     }
 
     const status = getStatus(auction);
