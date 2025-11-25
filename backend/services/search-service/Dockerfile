@@ -1,3 +1,4 @@
+
 # --- STAGE 1: BUILDER ---
 # Sử dụng stage này để cài đặt tất cả các dependencies
 FROM node:18-alpine AS builder

@@ -13,7 +13,11 @@ async function startConsumer() {
 
     try {
         const channel = await conn.createChannel();
+<<<<<<< HEAD
+        await channel.assertExchange(EXCHANGE_NAME, 'fanout', { durable: true });
+=======
         await channel.assertExchange(EXCHANGE_NAME, 'direct', { durable: true });
+>>>>>>> temp
         
         // Tạo queue độc quyền (exclusive) và bind với exchange
         const q = await channel.assertQueue('analytics_queue', { durable: true });

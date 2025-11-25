@@ -5,6 +5,10 @@ import 'package:go_router/go_router.dart';
 import '../../../core/widgets/app_loading_indicator.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/error_view.dart';
+<<<<<<< HEAD
+import '../../listings/presentation/home_screen.dart';
+=======
+>>>>>>> temp
 import '../controllers/auction_providers.dart';
 import '../models/auction.dart';
 
@@ -18,7 +22,14 @@ class AuctionsScreen extends ConsumerWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+<<<<<<< HEAD
+          onPressed: () => Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+          ),
+=======
           onPressed: () => context.pop(),
+>>>>>>> temp
         ),
         title: const Text('Đấu giá trực tuyến'),
       ),

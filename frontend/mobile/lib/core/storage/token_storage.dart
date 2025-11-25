@@ -4,7 +4,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class TokenStorage {
   static const _tokenKey = 'evb_token';
+<<<<<<< HEAD
+=======
   static const _refreshTokenKey = 'evb_refresh_token';
+>>>>>>> temp
   static const _userKey = 'evb_user';
 
   Future<SharedPreferences> _prefs() => SharedPreferences.getInstance();
@@ -24,6 +27,8 @@ class TokenStorage {
     await prefs.remove(_tokenKey);
   }
 
+<<<<<<< HEAD
+=======
   Future<void> saveRefreshToken(String refreshToken) async {
     final prefs = await _prefs();
     await prefs.setString(_refreshTokenKey, refreshToken);
@@ -39,6 +44,7 @@ class TokenStorage {
     await prefs.remove(_refreshTokenKey);
   }
 
+>>>>>>> temp
   Future<void> saveUserJson(Map<String, dynamic> data) async {
     final prefs = await _prefs();
     await prefs.setString(_userKey, jsonEncode(data));
@@ -60,7 +66,10 @@ class TokenStorage {
     final prefs = await _prefs();
     await prefs
       ..remove(_tokenKey)
+<<<<<<< HEAD
+=======
       ..remove(_refreshTokenKey)
+>>>>>>> temp
       ..remove(_userKey);
   }
 }

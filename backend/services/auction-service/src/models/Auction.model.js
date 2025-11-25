@@ -64,6 +64,20 @@ const AuctionSchema = new mongoose.Schema(
     metadata: {
       type: mongoose.Schema.Types.Mixed,
     },
+    // Deposit requirement for auction participation
+    depositRequired: {
+      type: Number,
+      default: 0,
+      min: 0,
+      // Số tiền tối thiểu trong ví để tham gia đấu giá
+    },
+    depositPercentage: {
+      type: Number,
+      default: 10, // 10% of starting price
+      min: 0,
+      max: 100,
+      // % của giá khởi điểm làm deposit
+    },
   },
   { timestamps: true }
 );
@@ -78,6 +92,22 @@ AuctionSchema.methods.computeStatus = function () {
   if (now >= this.endTime) return "ended";
   if (now >= this.startTime) return "active";
   return "scheduled";
+};
+
+// Virtual getter for deposit amount
+AuctionSchema.virtual('depositAmount').get(function () {
+  if (this.depositRequired > 0) {
+    return this.depositRequired;
+  }
+  return Math.floor(this.startingPrice * (this.depositPercentage / 100));
+});
+
+// Helper method to get deposit amount
+AuctionSchema.methods.getDepositAmount = function () {
+  if (this.depositRequired > 0) {
+    return this.depositRequired;
+  }
+  return Math.floor(this.startingPrice * (this.depositPercentage / 100));
 };
 
 module.exports = mongoose.model("Auction", AuctionSchema);

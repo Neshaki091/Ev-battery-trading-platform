@@ -148,5 +148,9 @@ exports.getPublicListings = async (req, res) => {
         console.error("Lỗi trong getPublicListings:", error);
         res.status(500).json({ message: 'Không thể thực hiện tìm kiếm.' });
     }
+<<<<<<< HEAD
+};
+=======
 };
 
+>>>>>>> temp

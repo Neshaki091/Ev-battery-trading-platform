@@ -41,7 +41,7 @@ exports.getMe = async (req, res) => {
             return res.status(400).json({ message: "Missing user ID in token" });
         }
 
-        const user = await userschema.findById(userId).select("_id profile wallet macthedProfiles");
+        const user = await userschema.findById(userId).select("_id profile wallet walletBalance macthedProfiles role isActive createdAt");
 
         if (!user) {
             return res.status(404).json({ message: "User not found" });
@@ -51,6 +51,7 @@ exports.getMe = async (req, res) => {
             user_id: user._id,
             profile: user.profile,
             wallet: user.wallet || {},
+            walletBalance: user.walletBalance || 0,
             role: user.role,
             isActive: user.isActive,
             createdAt: user.createdAt,
@@ -82,6 +83,7 @@ exports.getUserById = async (req, res) => {
             firstName: user.profile.firstName || '',
             lastName: user.profile.lastName || '',
             wallet: user.wallet || {},
+            walletBalance: user.walletBalance || 0,
             role: user.role,
             isActive: user.isActive,
             createdAt: user.createdAt,
@@ -110,6 +112,7 @@ exports.getSellerById = async (req, res) => {
             firstName: user.profile.firstName || '',
             lastName: user.profile.lastName || '',
             wallet: user.wallet || {},
+            walletBalance: user.walletBalance || 0
         });
     } catch (error) {
         res.status(500).json({ message: 'Error retrieving seller', error: error.message });
@@ -237,7 +240,7 @@ exports.updateUser = async (req, res) => {
 
         const updatedUser = await userschema.findByIdAndUpdate(
             targetUserId,
-{ $set: updateFields }, // SỬ DỤNG updateFields đã được chuẩn hóa
+            { $set: updateFields }, // SỬ DỤNG updateFields đã được chuẩn hóa
             { new: true, runValidators: true }
         ).select('-password -Tokens');
 
@@ -292,6 +295,9 @@ exports.loginUser = async (req, res) => {
         const refreshToken = generateRefreshToken(user);
         const accessToken = generateAccessToken(user);
 
+        // Lưu Refresh Token
+        await addUserRefreshToken(user._id, refreshToken, accessToken);
+
         // Chuẩn bị response
         const responseUser = user.toObject();
         delete responseUser.password;
@@ -308,7 +314,6 @@ exports.loginUser = async (req, res) => {
         res.status(500).json({ message: 'Error during login', error: error.message });
     }
 };
-
 
 exports.logoutUser = async (req, res) => {
     const userId = req.user._id;

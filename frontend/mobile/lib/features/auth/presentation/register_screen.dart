@@ -3,6 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../controllers/auth_controller.dart';
+<<<<<<< HEAD
+import 'login_screen.dart';
+=======
+>>>>>>> temp
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -61,7 +65,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+<<<<<<< HEAD
+          onPressed: () => Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+          ),
+=======
           onPressed: () => context.pop(),
+>>>>>>> temp
         ),
         title: const Text('Đăng ký EVB Market'),
       ),

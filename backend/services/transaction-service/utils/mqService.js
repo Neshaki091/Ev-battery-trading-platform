@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+
+=======
 // utils/mqService.js
 const amqp = require('amqplib');
 
@@ -94,3 +97,4 @@ async function sendMessage(message) {
 connectRabbitMQ();
 
 module.exports = { connectRabbitMQ, publishEvent, sendMessage, EXCHANGE_NAME, QUEUE_NAME };
+>>>>>>> temp

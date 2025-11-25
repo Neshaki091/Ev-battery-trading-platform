@@ -463,7 +463,11 @@ exports.suggestPrice = async (req, res) => {
         } = req.body;
 
         // 2. Chọn mô hình
+<<<<<<< HEAD
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+=======
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash", config: { temperature: 0.1, maxOutputTokens: 80 } });
+>>>>>>> temp
 
         // 3. Tạo Prompt
         const prompt = `

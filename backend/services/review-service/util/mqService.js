@@ -1,4 +1,6 @@
 
+<<<<<<< HEAD
+=======
 // util/mqService.js
 const amqp = require('amqplib');
 
@@ -72,3 +74,4 @@ async function publishEvent(eventName, data) {
 connectRabbitMQ();
 
 module.exports = { connectRabbitMQ, publishEvent, EXCHANGE_NAME };
+>>>>>>> temp

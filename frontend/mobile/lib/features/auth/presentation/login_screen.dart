@@ -3,6 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 
+<<<<<<< HEAD
+import '../../listings/presentation/home_screen.dart';
+=======
+>>>>>>> temp
 import '../controllers/auth_controller.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -61,7 +65,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+<<<<<<< HEAD
+          onPressed: () => Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+          ),
+=======
           onPressed: () => context.pop(),
+>>>>>>> temp
         ),
         title: const Text('Đăng nhập'),
       ),

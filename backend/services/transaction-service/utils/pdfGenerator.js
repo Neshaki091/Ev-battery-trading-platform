@@ -186,16 +186,21 @@ function drawSignatures(doc, fontName, fontBold) {
    const y = doc.y + 20;
    if (y > 650) doc.addPage();
    const sigY = doc.y;
+
+   const buyerSigned = order.buyerSignature && order.buyerSignature.signedAt;
+   const sellerSigned = order.sellerSignature && order.sellerSignature.signedAt;
+   const buyerText = buyerSigned ? '[ĐÃ KÝ]' : '[CHƯA KÝ]';
+   const sellerText = sellerSigned ? '[ĐÃ KÝ]' : '[CHƯA KÝ]';
    // BÊN A
    doc.rect(50, sigY, 240, 100).stroke();
    doc.font(fontBold).fontSize(11).text('BÊN A - NGƯỜI MUA', 60, sigY + 10, { width: 220, align: 'center' });
    doc.font(fontName).fontSize(9).fillColor('#666').text('Chữ ký điện tử', 60, sigY + 30, { width: 220, align: 'center' });
-   doc.fontSize(16).fillColor('#1a73e8').text('[SIGNED]', 60, sigY + 50, { width: 220, align: 'center' });
+   doc.fontSize(16).fillColor('#1a73e8').text(buyerText, 60, sigY + 50, { width: 220, align: 'center' });
    // BÊN B
    doc.rect(305, sigY, 240, 100).stroke();
    doc.font(fontBold).fontSize(11).fillColor('#000').text('BÊN B - NGƯỜI BÁN', 315, sigY + 10, { width: 220, align: 'center' });
    doc.font(fontName).fontSize(9).fillColor('#666').text('Chữ ký điện tử', 315, sigY + 30, { width: 220, align: 'center' });
-   doc.fontSize(16).fillColor('#1a73e8').text('[SIGNED]', 315, sigY + 50, { width: 220, align: 'center' });
+   doc.fontSize(16).fillColor('#1a73e8').text(sellerText, 315, sigY + 50, { width: 220, align: 'center' });
 }
 
 function drawFooter(doc, fontName) {

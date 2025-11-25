@@ -97,6 +97,8 @@ class AuthController extends StateNotifier<AuthState> {
     await _repository.logout();
     state = const AuthState();
   }
+<<<<<<< HEAD
+=======
 
   Future<void> refreshProfile() async {
     try {
@@ -128,5 +130,6 @@ class AuthController extends StateNotifier<AuthState> {
       rethrow;
     }
   }
+>>>>>>> temp
 }
 

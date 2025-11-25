@@ -1,11 +1,18 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+<<<<<<< HEAD
+=======
 import 'package:go_router/go_router.dart';
+>>>>>>> temp
 
 import '../../../core/widgets/app_loading_indicator.dart';
 import '../../../core/widgets/error_view.dart';
 import '../controllers/listing_providers.dart';
+<<<<<<< HEAD
+import 'products_screen.dart';
+=======
+>>>>>>> temp
 
 class ListingDetailScreen extends ConsumerWidget {
   const ListingDetailScreen({
@@ -23,7 +30,14 @@ class ListingDetailScreen extends ConsumerWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+<<<<<<< HEAD
+          onPressed: () => Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const ProductsScreen()),
+          ),
+=======
           onPressed: () => context.pop(),
+>>>>>>> temp
         ),
         title: const Text('Chi tiết tin đăng'),
       ),

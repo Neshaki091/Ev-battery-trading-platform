@@ -232,6 +232,32 @@ const processPayment = async (req, res) => {
       console.error(listingError.message);
     }
 
+    // 4. 🆕 CỘNG TIỀN VÀO VÍ SELLER
+    try {
+      const sellerAmount = updatedOrder.price - (updatedOrder.commissionAmount || 0);
+      const userServiceUrl = process.env.USER_SERVICE_URL || 'http://backend-auth-service-1:3000';
+
+      console.log(`[TransactionService] Bắt đầu cộng ${sellerAmount} đ vào ví seller ${updatedOrder.sellerId}...`);
+
+      await axios.post(
+        `${userServiceUrl}/wallet/add`,
+        {
+          userId: updatedOrder.sellerId.toString(),
+          amount: sellerAmount
+        },
+        {
+          headers: {
+            'x-internal-key': process.env.INTERNAL_API_KEY || 'your-secret-internal-key'
+          }
+        }
+      );
+
+      console.log(`✅ Đã cộng ${sellerAmount.toLocaleString('vi-VN')} đ vào ví seller ${updatedOrder.sellerId}`);
+    } catch (walletError) {
+      console.error(`⚠️ LỖI khi cộng tiền vào ví seller ${updatedOrder.sellerId}:`, walletError.response?.data || walletError.message);
+      // Không fail transaction, chỉ log lỗi để admin xử lý thủ công
+    }
+
     res.json({ success: true, order: updatedOrder });
 
   } catch (error) {
@@ -268,6 +294,20 @@ const generateContract = async (req, res) => {
 
     if (order.status !== 'paid') {
       return res.status(400).json({ success: false, error: 'Đơn hàng phải được thanh toán mới có thể xuất hợp đồng' });
+    }
+
+    // 2b. Yêu cầu cả hai bên đã ký điện tử trước khi xuất hợp đồng
+    const hasBuyerSignature = order.buyerSignature && order.buyerSignature.signedAt;
+    const hasSellerSignature = order.sellerSignature && order.sellerSignature.signedAt;
+
+    if (!hasBuyerSignature || !hasSellerSignature) {
+      return res.status(400).json({
+        success: false,
+        error: 'Hợp đồng chỉ được tải sau khi cả Người mua và Người bán đã ký điện tử.',
+        requiresSignature: true,
+        buyerSigned: !!hasBuyerSignature,
+        sellerSigned: !!hasSellerSignature
+      });
     }
 
     // 3. === BẮT ĐẦU SỬA: Lấy dữ liệu từ các service khác ===
