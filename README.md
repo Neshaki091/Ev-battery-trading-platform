@@ -1,3 +1,7 @@
+
+<img width="703" height="130" alt="Logo_EVB_Dark" src="https://github.com/user-attachments/assets/a6260eff-9a0e-4ff2-9542-9df8bd8a66fe" />
+
+
 #⚡ EV Trade Platform
 
 Nền tảng giao dịch xe điện & pin qua sử dụngCấu trúc theo mô hình Monorepo gồm backend (microservices), frontend (web + mobile) và thư mục dùng chung.
