@@ -1,0 +1,11 @@
+tunnel: bc658407-15a0-43f9-9198-b6e212ab676e
+
+# 2. Đường dẫn này phải khớp với đường dẫn TRONG CONTAINER (do dòng volumes trong docker-compose quy định)
+credentials-file: /home/nonroot/.cloudflared/web_evb.json
+
+ingress:
+  - hostname: web.evbtranding.site
+    service: http://evb_frontend:5173  # <--- Đã đổi từ 3000 sang 5173
+  - hostname: www.evbtranding.site
+    service: http://evb_frontend:5173  # <--- Đã đổi từ 3000 sang 5173
+  - service: http_status:404

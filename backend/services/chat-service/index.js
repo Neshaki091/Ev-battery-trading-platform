@@ -1,7 +1,6 @@
 // index.js
 const express = require("express");
 const dotenv = require("dotenv");
-const cors = require("cors");
 const chatRoutes = require('./routes/chat.routes');
 const { db } = require('./util/firebase');
 
@@ -10,8 +9,6 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 8087;
 
-// MIDDLEWARES
-app.use(cors());
 app.use(express.json());
 
 // Test Firebase connection

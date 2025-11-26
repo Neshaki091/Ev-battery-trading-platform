@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # 1. Service Frontend
+  evb-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: https://api.evbtranding.site/api
+    container_name: evb_frontend
+    restart: always
+    networks:
+      - evb-network # <--- Cùng mạng với Tunnel
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'     # Sử dụng tối đa 50% của 1 nhân CPU
+          memory: 512M    # Giới hạn cứng: 512MB RAM (~0.5GB)
+        reservations:
+          memory: 128M    # Đảm bảo luôn có ít nhất 128MB RAM để chạy ổn định
+
+  # 2. Service Tunnel (Cấu hình dùng File Config & Creds)
+  tunnel-webevb:
+    image: cloudflare/cloudflared:latest
+    container_name: tunnel_web_evb
+    restart: always
+    # Lệnh này bảo nó chạy theo file config.yml
+    command: tunnel run
+    # Mount thư mục chứa file .json và file config vào
+    volumes:
+      - ./config.yml:/home/nonroot/.cloudflared/config.yml
+      - ./creds:/home/nonroot/.cloudflared
+    networks:
+      - evb-network # <--- Cùng mạng với Frontend
+
+# 3. Khai báo Network chung
+networks:
+  evb-network:
+    driver: bridge
