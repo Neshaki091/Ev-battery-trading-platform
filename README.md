@@ -1,4 +1,6 @@
-⚡ EV Trade PlatformNền tảng giao dịch xe điện & pin qua sử dụngCấu trúc theo mô hình Monorepo gồm backend (microservices), frontend (web + mobile) và thư mục dùng chung.
+#⚡ EV Trade Platform
+
+Nền tảng giao dịch xe điện & pin qua sử dụngCấu trúc theo mô hình Monorepo gồm backend (microservices), frontend (web + mobile) và thư mục dùng chung.
 
 | Thành phần | Môi trường | Link truy cập | Ghi chú |
 | :--- | :--- | :--- | :--- |
@@ -35,12 +37,37 @@ ev-trade-platform/
 ├── shared/ # code, types, utils dùng chung
 │
 └── README.md
-🌱 Các nhánh chính (branches)BranchMục đíchmainBản ổn định, đã kiểm thửdevelopNhánh phát triển tổngauth-serviceMicroservice xác thực người dùnglisting-serviceCRUD tin đăng xe/pinsearch-serviceTìm kiếm, lọc, gợi ýtransaction-serviceGiao dịch, thanh toán, hợp đồngreview-servicesĐánh giá bài đăngreport-servicesBáo cáo bài đăng, người dùnganalytics-serviceThống kêchat-servicesNhắn tin giữa người bán và người muaauction-servicesĐấu giágatewayAPI Gatewayfrontend-webGiao diện web (React / Next.js)frontend-mobileApp Android (Flutter / React Native)🚀 Cách clone và làm việcBash# Clone project
+```
+## 🌱 Các nhánh chính (branches)
+
+| Branch | Mục đích |
+|--------|-----------|
+| `main` | Bản ổn định, đã kiểm thử |
+| `develop` | Nhánh phát triển tổng |
+| `auth-service` | Microservice xác thực người dùng |
+| `listing-service` | CRUD tin đăng xe/pin |
+| `search-service` | Tìm kiếm, lọc, gợi ý |
+| `transaction-service` | Giao dịch, thanh toán, hợp đồng |
+| `review-services` | Đánh giá bài đăng |
+| `report-services` | Báo cáo bài đăng, người dùng |
+| `analytics-service` | Thống kê |
+| `chat-services` | Nhắn tin giữa người bán và người mua|
+| `auction-services` | Đấu giá |
+| `gateway` | API Gateway |
+| `frontend-web` | Giao diện web (React / Next.js) |
+| `frontend-mobile` | App Android (Flutter / React Native) |
+
+---
+
+## 🚀 Cách clone và làm việc
+
+```bash
+# Clone project
 git clone https://github.com/Neshaki091/ev-trade-platform.git
 cd ev-trade-platform
 
 # Checkout branch tương ứng
-git checkout auth-service      # ví dụ làm phần Auth
+git checkout auth-service     # ví dụ làm phần Auth
 
 # Làm việc trong thư mục tương ứng
 cd backend/services/auth-service
@@ -50,4 +77,18 @@ cd backend/services/auth-service
 git add .
 git commit -m "feat: add register/login API"
 git push origin auth-service
-🧠 Quy ước commitfeat: – thêm tính năngfix: – sửa lỗichore: – cấu hình, dọn dẹpdocs: – tài liệu, READMEtest: – thêm/sửa test⚠️ Quy tắc chungKhông commit trực tiếp vào main hoặc developMỗi người làm đúng branch của mìnhPull trước khi push (git pull origin <branch>)Merge qua pull request để review code
+```
+
+## 🧠 Quy ước commit
+- `feat:` – thêm tính năng
+- `fix:` – sửa lỗi
+- `chore:` – cấu hình, dọn dẹp
+- `docs:` – tài liệu, README
+- `test:` – thêm/sửa test
+
+## ⚠️ Quy tắc chung
+- Không commit trực tiếp vào main hoặc develop
+- Mỗi người làm đúng branch của mình
+- Pull trước khi push (git pull origin <branch>)
+- Merge qua pull request để review code
+
