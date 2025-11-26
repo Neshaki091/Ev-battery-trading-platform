@@ -12,7 +12,7 @@ const { publishEvent } = require('../utils/mqService');
 const createOrder = async (req, res) => {
   try {
     const { listingId, type } = req.body;
-    const userId = req.user._id; // Lấy từ middleware (an toàn)
+    const userId = req.user.id || req.user._id; // Lấy từ middleware (an toàn)
     const token = req.headers.authorization;
 
     if (!listingId || !type) {
@@ -24,7 +24,7 @@ const createOrder = async (req, res) => {
 
     // === KIỂM TRA BẮT BUỘC: firstName và lastName phải được cập nhật ===
     try {
-      const userServiceUrl = process.env.USER_SERVICE_URL || 'http://backend-auth-service-1:3000';
+      const userServiceUrl = process.env.USER_SERVICE_URL || 'http://localhost:3000';
       const userRes = await axios.get(`${userServiceUrl}/seller/${userId}`, {
         headers: { Authorization: token }
       });
@@ -132,7 +132,7 @@ const createOrder = async (req, res) => {
 const processPayment = async (req, res) => {
   try {
     const id = req.params.id;
-    const userId = req.user._id;
+    const userId = req.user.id || req.user._id;
     const token = req.headers.authorization; // Cần token để gọi service khác
 
     const order = await TransactionUtil.findById(id);
@@ -151,28 +151,73 @@ const processPayment = async (req, res) => {
       return res.status(400).json({ success: false, error: 'Đơn hàng này không còn ở trạng thái chờ thanh toán.' });
     }
 
-    // === KIỂM TRA BẮT BUỘC: firstName và lastName phải được cập nhật ===
+    // === KIỂM TRA BẮT BUỘC: firstName, lastName và SỐ DƯ VÍ ===
     try {
-      const userServiceUrl = process.env.USER_SERVICE_URL || 'http://backend-auth-service-1:3000';
-      const userRes = await axios.get(`${userServiceUrl}/userprofile/${userId}`, {
+      const authServiceUrl =
+        process.env.AUTH_SERVICE_URL || process.env.USER_SERVICE_URL || 'http://auth-service:3000';
+
+      const userRes = await axios.get(`${authServiceUrl}/userprofile/${userId}`, {
         headers: { Authorization: token }
       });
 
       const userData = userRes.data;
       const firstName = userData.firstName || '';
       const lastName = userData.lastName || '';
+      const walletBalance = userData.walletBalance || 0;
 
       if (!firstName.trim() || !lastName.trim()) {
         return res.status(400).json({
           success: false,
-          error: 'Bạn phải cập nhật đầy đủ Họ và Tên trước khi thanh toán. Vui lòng cập nhật thông tin tại trang Profile.',
+          error:
+            'Bạn phải cập nhật đầy đủ Họ và Tên trước khi thanh toán. Vui lòng cập nhật thông tin tại trang Profile.',
           requiresProfileUpdate: true
         });
       }
+
+      // Kiểm tra số dư ví đủ để thanh toán
+      if (walletBalance < order.price) {
+        return res.status(400).json({
+          success: false,
+          error: `Số dư ví không đủ để thanh toán. Cần ${order.price.toLocaleString(
+            'vi-VN'
+          )} đ, hiện có ${walletBalance.toLocaleString('vi-VN')} đ.`,
+          requiresTopup: true
+        });
+      }
+
+      // Trừ tiền khỏi ví người mua trước khi đánh dấu thanh toán
+      try {
+        await axios.post(
+          `${authServiceUrl}/wallet/deduct`,
+          {
+            userId: userId.toString(),
+            amount: order.price
+          },
+          {
+            headers: {
+              'x-internal-key': process.env.INTERNAL_API_KEY
+            }
+          }
+        );
+      } catch (walletErr) {
+        console.error(
+          '[processPayment] Lỗi khi trừ tiền khỏi ví người mua:',
+          walletErr.response?.data || walletErr.message
+        );
+        return res.status(500).json({
+          success: false,
+          error:
+            walletErr.response?.data?.error ||
+            walletErr.response?.data?.message ||
+            walletErr.message ||
+            'Không thể trừ tiền khỏi ví người dùng. Vui lòng thử lại.'
+        });
+      }
     } catch (userErr) {
-      console.error('Lỗi khi kiểm tra thông tin user:', userErr.message);
-      // Nếu không lấy được thông tin user, vẫn cho phép thanh toán nhưng cảnh báo
-      // Hoặc có thể return lỗi tùy yêu cầu nghiệp vụ
+      console.error('Lỗi khi kiểm tra thông tin user / số dư ví:', userErr.message);
+      return res
+        .status(500)
+        .json({ success: false, error: 'Không thể xác thực thông tin người dùng để thanh toán.' });
     }
 
     // === ⭐️ BƯỚC KIỂM TRA QUAN TRỌNG NHẤT (THÊM MỚI) ===
@@ -235,9 +280,12 @@ const processPayment = async (req, res) => {
     // 4. 🆕 CỘNG TIỀN VÀO VÍ SELLER
     try {
       const sellerAmount = updatedOrder.price - (updatedOrder.commissionAmount || 0);
-      const userServiceUrl = process.env.USER_SERVICE_URL || 'http://backend-auth-service-1:3000';
+      const userServiceUrl =
+        process.env.USER_SERVICE_URL || process.env.AUTH_SERVICE_URL || 'http://auth-service:3000';
 
-      console.log(`[TransactionService] Bắt đầu cộng ${sellerAmount} đ vào ví seller ${updatedOrder.sellerId}...`);
+      console.log(
+        `[TransactionService] Bắt đầu cộng ${sellerAmount} đ vào ví seller ${updatedOrder.sellerId}...`
+      );
 
       await axios.post(
         `${userServiceUrl}/wallet/add`,
@@ -272,7 +320,7 @@ const processPayment = async (req, res) => {
 const generateContract = async (req, res) => {
   try {
     const id = req.params.id;
-    const userId = req.user._id.toString();
+    const userId = (req.user.id || req.user._id).toString();
     const userRole = req.user.role;
     const token = req.headers.authorization; // Lấy token để gọi service khác
 
@@ -292,21 +340,11 @@ const generateContract = async (req, res) => {
       return res.status(403).json({ success: false, error: 'Access denied.' });
     }
 
-    if (order.status !== 'paid') {
-      return res.status(400).json({ success: false, error: 'Đơn hàng phải được thanh toán mới có thể xuất hợp đồng' });
-    }
-
-    // 2b. Yêu cầu cả hai bên đã ký điện tử trước khi xuất hợp đồng
-    const hasBuyerSignature = order.buyerSignature && order.buyerSignature.signedAt;
-    const hasSellerSignature = order.sellerSignature && order.sellerSignature.signedAt;
-
-    if (!hasBuyerSignature || !hasSellerSignature) {
+    // Chỉ cần đơn hàng đã được thanh toán là có thể xuất hợp đồng
+    if (order.status !== 'paid' && order.status !== 'completed') {
       return res.status(400).json({
         success: false,
-        error: 'Hợp đồng chỉ được tải sau khi cả Người mua và Người bán đã ký điện tử.',
-        requiresSignature: true,
-        buyerSigned: !!hasBuyerSignature,
-        sellerSigned: !!hasSellerSignature
+        error: 'Đơn hàng phải được thanh toán mới có thể xuất hợp đồng',
       });
     }
 
@@ -314,7 +352,8 @@ const generateContract = async (req, res) => {
     // (Thay thế cho TransactionUtil.findByIdPopulated)
 
     // Lấy URL từ biến môi trường (Giả định URL của User Service)
-    const userServiceUrl = process.env.USER_SERVICE_URL || 'http://backend-auth-service-1:3000';
+    const userServiceUrl =
+      process.env.USER_SERVICE_URL || process.env.AUTH_SERVICE_URL || 'http://auth-service:3000';
     const listingServiceUrl = process.env.LISTING_SERVICE_URL || 'http://backend-listing-service-1:5000';
 
     // Gọi API song song, thêm .catch() để tránh 1 lỗi làm hỏng toàn bộ
@@ -377,7 +416,7 @@ const generateContract = async (req, res) => {
  */
 const getOrderHistory = async (req, res) => {
   try {
-    const userId = req.user._id; // Chỉ lấy của user đã login
+    const userId = req.user.id || req.user._id; // Chỉ lấy của user đã login
 
     // === SỬA LỖI: Thêm .toString() ===
     // userId ở đây là [object Object], phải chuyển thành string
@@ -396,7 +435,7 @@ const getOrderHistory = async (req, res) => {
 const cancelPendingOrder = async (req, res) => {
   try {
     const id = req.params.id;
-    const userId = req.user._id.toString();
+    const userId = (req.user.id || req.user._id).toString();
     const token = req.headers.authorization;
 
     // 1. Tìm đơn hàng

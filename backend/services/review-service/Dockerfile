@@ -23,4 +23,4 @@ RUN npx prisma generate
 EXPOSE 8000
 
 # 7. Lệnh khởi động
-CMD ["npm", "start"]
+CMD ["/bin/sh", "-c", "npx prisma db push && npm start"]

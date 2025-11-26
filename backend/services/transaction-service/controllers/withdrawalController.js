@@ -8,7 +8,7 @@ const axios = require('axios');
  */
 exports.createWithdrawalRequest = async (req, res) => {
     try {
-        const userId = req.user._id;
+        const userId = req.user.id || req.user._id;
         const { amount, note } = req.body;
 
         if (!amount || amount <= 0) {
@@ -18,8 +18,8 @@ exports.createWithdrawalRequest = async (req, res) => {
             });
         }
 
-        // Lấy thông tin user từ auth service
-        const authServiceUrl = process.env.AUTH_SERVICE_URL || 'http://backend-auth-service-1:3000';
+        // Lấy thông tin user từ auth service (chạy trong Docker: auth-service:3000)
+        const authServiceUrl = process.env.AUTH_SERVICE_URL || 'http://auth-service:3000';
         const token = req.headers.authorization;
 
         const userResponse = await axios.get(`${authServiceUrl}/userprofile/${userId}`, {
@@ -96,7 +96,7 @@ exports.createWithdrawalRequest = async (req, res) => {
  */
 exports.getMyWithdrawalRequests = async (req, res) => {
     try {
-        const userId = req.user._id;
+        const userId = req.user.id || req.user._id;
 
         const requests = await WithdrawalRequest.find({ userId: userId })
             .sort({ createdAt: -1 })
@@ -126,7 +126,7 @@ exports.getPendingWithdrawals = async (req, res) => {
             .limit(100);
 
         // Lấy thông tin user cho mỗi request
-        const authServiceUrl = process.env.AUTH_SERVICE_URL || 'http://backend-auth-service-1:3000';
+        const authServiceUrl = process.env.AUTH_SERVICE_URL || 'http://auth-service:3000';
 
         const enrichedRequests = await Promise.all(
             requests.map(async (request) => {
@@ -170,7 +170,7 @@ exports.approveWithdrawal = async (req, res) => {
     try {
         const { id } = req.params;
         const { transactionRef, adminNote } = req.body;
-        const adminId = req.user._id;
+        const adminId = req.user.id || req.user._id;
 
         const request = await WithdrawalRequest.findById(id);
 
@@ -189,7 +189,7 @@ exports.approveWithdrawal = async (req, res) => {
         }
 
         // Trừ tiền khỏi ví user
-        const authServiceUrl = process.env.AUTH_SERVICE_URL || 'http://backend-auth-service-1:3000';
+        const authServiceUrl = process.env.AUTH_SERVICE_URL || 'http://localhost:3000';
 
         try {
             await axios.post(
@@ -238,7 +238,7 @@ exports.rejectWithdrawal = async (req, res) => {
     try {
         const { id } = req.params;
         const { adminNote } = req.body;
-        const adminId = req.user._id;
+        const adminId = req.user.id || req.user._id;
 
         const request = await WithdrawalRequest.findById(id);
 
@@ -289,7 +289,7 @@ exports.getWithdrawalHistory = async (req, res) => {
             .sort({ processedAt: -1 })
             .limit(100);
 
-        const authServiceUrl = process.env.AUTH_SERVICE_URL || 'http://backend-auth-service-1:3000';
+        const authServiceUrl = process.env.AUTH_SERVICE_URL || 'http://auth-service:3000';
 
         const enrichedRequests = await Promise.all(
             requests.map(async (request) => {

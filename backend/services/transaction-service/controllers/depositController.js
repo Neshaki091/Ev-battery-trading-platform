@@ -1,7 +1,7 @@
 const DepositRequest = require('../models/schemas/DepositRequest');
 const axios = require('axios');
 
-const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://backend-auth-service-1:3000';
+const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://localhost:3000';
 const INTERNAL_API_KEY = process.env.INTERNAL_API_KEY || 'your-secret-internal-key';
 
 /**
@@ -11,7 +11,7 @@ const INTERNAL_API_KEY = process.env.INTERNAL_API_KEY || 'your-secret-internal-k
 exports.createDepositRequest = async (req, res) => {
     try {
         const { amount, bankTransferInfo } = req.body;
-        const userId = req.user._id;
+        const userId = req.user.id || req.user._id;
 
         if (!amount || amount <= 0) {
             return res.status(400).json({
@@ -56,7 +56,7 @@ exports.createDepositRequest = async (req, res) => {
  */
 exports.getMyDepositRequests = async (req, res) => {
     try {
-        const userId = req.user._id;
+        const userId = req.user.id || req.user._id;
         const { status, page = 1, limit = 10 } = req.query;
 
         const filter = { userId };
@@ -206,7 +206,7 @@ exports.approveDeposit = async (req, res) => {
 
         // Cập nhật trạng thái deposit request
         depositRequest.status = 'approved';
-        depositRequest.processedBy = req.user._id;
+        depositRequest.processedBy = req.user.id || req.user._id;
         depositRequest.processedAt = new Date();
         depositRequest.adminNote = adminNote;
         await depositRequest.save();
@@ -258,7 +258,7 @@ exports.rejectDeposit = async (req, res) => {
         }
 
         depositRequest.status = 'rejected';
-        depositRequest.processedBy = req.user._id;
+        depositRequest.processedBy = req.user.id || req.user._id;
         depositRequest.processedAt = new Date();
         depositRequest.adminNote = adminNote;
         await depositRequest.save();

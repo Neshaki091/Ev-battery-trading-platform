@@ -75,7 +75,7 @@ services:
       context: .
       dockerfile: ./services/review-service/Dockerfile
     env_file: ./services/review-service/.env
-    mem_limit: 64m
+    mem_limit: 256m
     depends_on:
       postgres:
         condition: service_healthy
