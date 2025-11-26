@@ -1,0 +1,372 @@
+/* WithdrawalPage.css - Similar styling to DepositPage */
+.withdrawal-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem 1rem;
+}
+
+.withdrawal-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.withdrawal-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: white;
+}
+
+.withdrawal-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.wallet-balance-display {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    display: inline-block;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.balance-label {
+    font-size: 1rem;
+    margin-right: 1rem;
+    opacity: 0.9;
+}
+
+.balance-amount {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.withdrawal-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.withdrawal-form-section,
+.withdrawal-history-section {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.bank-info-card {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.bank-info-card h3 {
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.bank-info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.bank-info-item:last-child {
+    border-bottom: none;
+}
+
+.bank-info-item .label {
+    font-weight: 600;
+    color: #555;
+}
+
+.bank-info-item .value {
+    font-weight: 500;
+    color: #333;
+}
+
+.bank-info-warning {
+    background: #fff3cd;
+    border: 2px solid #ffc107;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.bank-info-warning h3 {
+    color: #856404;
+    margin-bottom: 0.5rem;
+}
+
+.bank-info-warning p {
+    color: #856404;
+    margin: 0;
+}
+
+.bank-info-warning a {
+    color: #667eea;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.withdrawal-form h3 {
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.quick-amounts {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.quick-amount-btn {
+    flex: 1;
+    min-width: 80px;
+    padding: 0.75rem;
+    border: 2px solid #667eea;
+    background: white;
+    color: #667eea;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.quick-amount-btn:hover:not(.disabled) {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+.quick-amount-btn.active {
+    background: #667eea;
+    color: white;
+}
+
+.quick-amount-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.amount-preview {
+    margin-top: 0.5rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #667eea;
+}
+
+.error-text {
+    color: #dc3545;
+    font-size: 0.9rem;
+}
+
+.withdrawal-notice {
+    background: #e7f3ff;
+    border-left: 4px solid #2196f3;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: 4px;
+    color: #0c5460;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.submit-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.withdrawal-history-section h3 {
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #999;
+}
+
+.withdrawal-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.withdrawal-item {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border-left: 4px solid #667eea;
+    transition: all 0.3s ease;
+}
+
+.withdrawal-item:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateX(4px);
+}
+
+.withdrawal-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.withdrawal-amount {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #dc3545;
+}
+
+.status-badge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-approved {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-rejected {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.withdrawal-item-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.withdrawal-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+}
+
+.info-label {
+    color: #666;
+    font-weight: 500;
+}
+
+.info-value {
+    color: #333;
+    font-weight: 600;
+}
+
+.admin-note,
+.user-note {
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    background: #fff;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.admin-note {
+    border-left: 3px solid #ffc107;
+}
+
+.user-note {
+    border-left: 3px solid #17a2b8;
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+    .withdrawal-content {
+        grid-template-columns: 1fr;
+    }
+
+    .withdrawal-header h1 {
+        font-size: 2rem;
+    }
+
+    .quick-amounts {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .withdrawal-page {
+        padding: 1rem 0.5rem;
+    }
+
+    .withdrawal-form-section,
+    .withdrawal-history-section {
+        padding: 1.5rem;
+    }
+
+    .withdrawal-header h1 {
+        font-size: 1.75rem;
+    }
+
+    .balance-amount {
+        font-size: 1.2rem;
+    }
+
+    .quick-amounts {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
