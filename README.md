@@ -9,6 +9,7 @@
 ---
 
 ## 🏗 Cấu trúc thư mục
+```bash
 ev-trade-platform/
 │
 ├── backend/
