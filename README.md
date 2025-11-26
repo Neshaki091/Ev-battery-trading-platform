@@ -1,15 +1,15 @@
 ⚡ EV Trade PlatformNền tảng giao dịch xe điện & pin qua sử dụngCấu trúc theo mô hình Monorepo gồm backend (microservices), frontend (web + mobile) và thư mục dùng chung.
 
-🌐 Deployment & Demo
+| Thành phần | Môi trường | Link truy cập | Ghi chú |
+| :--- | :--- | :--- | :--- |
+| **Frontend Web** | Production / Staging | `(https://web.evbtranding.site/)` | Web ReactJS cho người dùng |
+| **Mobile App** | Android (APK) | `đang cập nhật` | App Flutter |
+| **API Gateway** | Production | `(https://api.evbtranding.site/api/)` | Endpoint chính cho FE gọi vào |
 
-Thành phần,Môi trường,Link truy cập,Ghi chú
-Frontend Web,Production / Staging,[Điền Link Vercel/Netlify...],Web ReactJS cho người dùng
-Mobile App,Android (APK),[Điền Link tải APK/Firebase...],App Flutter
-API Gateway,Production,[Điền Link Server API...],Endpoint chính cho FE gọi vào
-API Docs,Postman / Swagger,[Điền Link Tài liệu API...],Tài liệu cho Dev Frontend
-Jira Board,Quản lý dự án,[Điền Link Jira...],Theo dõi tiến độ team
+---
 
-Cấu trúc thư mụcBashev-trade-platform/
+## 🏗 Cấu trúc thư mục
+ev-trade-platform/
 │
 ├── backend/
 │   ├── gateway/
