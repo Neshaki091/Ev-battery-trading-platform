@@ -1665,6 +1665,22 @@ function AdminWithdrawalsTab({ onToast, onConfirm }) {
   }, [activeView, fetchPendingWithdrawals, fetchWithdrawalHistory]);
 
   const handleApproveWithdrawal = useCallback((withdrawal) => {
+    const bankInfo = withdrawal.bankInfo || {};
+    const amount = withdrawal.amount || 0;
+    let vietQrUrl = null;
+
+    if (bankInfo.bankCode && bankInfo.accountNumber && amount > 0) {
+      try {
+        const addInfo = encodeURIComponent(
+          `EVB Withdraw ${withdrawal._id || ''}`.trim()
+        );
+        vietQrUrl = `https://img.vietqr.io/image/${bankInfo.bankCode}-${bankInfo.accountNumber}-compact.png?amount=${amount}&addInfo=${addInfo}`;
+      } catch (e) {
+        // Nếu encodeURIComponent có vấn đề thì bỏ qua QR, không làm vỡ UI
+        vietQrUrl = null;
+      }
+    }
+
     onConfirm?.({
       title: '✅ Duyệt yêu cầu rút tiền',
       message: (
@@ -1678,10 +1694,44 @@ function AdminWithdrawalsTab({ onToast, onConfirm }) {
             borderRadius: '8px',
             fontSize: '0.9rem'
           }}>
-            <div><strong>Ngân hàng:</strong> {withdrawal.bankInfo?.bankName}</div>
-            <div><strong>STK:</strong> {withdrawal.bankInfo?.accountNumber}</div>
-            <div><strong>Tên TK:</strong> {withdrawal.bankInfo?.accountName}</div>
+            <div><strong>Ngân hàng:</strong> {bankInfo.bankName}</div>
+            <div><strong>STK:</strong> {bankInfo.accountNumber}</div>
+            <div><strong>Tên TK:</strong> {bankInfo.accountName}</div>
           </div>
+          {vietQrUrl && (
+            <div
+              style={{
+                marginTop: '1rem',
+                padding: '0.75rem 0.75rem 0.5rem',
+                borderRadius: '10px',
+                border: '1px dashed var(--color-border)',
+                background: '#ffffff',
+                textAlign: 'center'
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '0.85rem',
+                  marginBottom: '0.5rem',
+                  color: 'var(--text-body)'
+                }}
+              >
+                Quét QR để chuyển khoản nhanh cho seller
+              </div>
+              <img
+                src={vietQrUrl}
+                alt="QR chuyển khoản VietQR"
+                style={{
+                  maxWidth: '220px',
+                  width: '100%',
+                  borderRadius: '12px',
+                  border: '1px solid var(--color-border)',
+                  backgroundColor: '#ffffff',
+                  padding: '8px'
+                }}
+              />
+            </div>
+          )}
         </div>
       ),
       confirmText: '✓ Xác nhận đã chuyển',

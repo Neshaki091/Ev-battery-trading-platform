@@ -20,6 +20,44 @@ const SparkleIcon = () => (
   </svg>
 );
 
+// === Danh sách tỉnh/thành sau sáp nhập (rút gọn, có thể chỉnh sửa thêm nếu cần) ===
+const MERGED_PROVINCES = [
+  'Hà Nội',
+  'Huế',
+  'Lai Châu',
+  'Điện Biên',
+  'Sơn La',
+  'Lạng Sơn',
+  'Quảng Ninh',
+  'Thanh Hóa',
+  'Nghệ An',
+  'Hà Tĩnh',
+  'Cao Bằng',
+  'Tuyên Quang',
+  'Lào Cai',
+  'Thái Nguyên',
+  'Phú Thọ',
+  'Bắc Ninh',
+  'Hưng Yên',
+  'Hải Phòng',
+  'Ninh Bình',
+  'Quảng Trị',
+  'Đà Nẵng',
+  'Quảng Ngãi',
+  'Gia Lai',
+  'Khánh Hòa',
+  'Lâm Đồng',
+  'Đắk Lắk',
+  'Hồ Chí Minh',
+  'Đồng Nai',
+  'Tây Ninh',
+  'Cần Thơ',
+  'Vĩnh Long',
+  'Đồng Tháp',
+  'Cà Mau',
+  'An Giang',
+];
+
 
 function CreateListingPage() {
   const navigate = useNavigate();
@@ -208,180 +246,448 @@ function CreateListingPage() {
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg-body)' }}>
       <div className="container py-8">
-        <div className="card p-8" style={{ maxWidth: '800px', margin: '0 auto' }}>
-          <h2 className="text-3xl font-bold mb-6" style={{ color: 'var(--text-heading)' }}>Tạo tin mới</h2>
+        <div
+          className="card card-lg"
+          style={{
+            maxWidth: '1040px',
+            margin: '0 auto',
+            padding: '2.25rem 2rem',
+          }}
+        >
+          {/* Header */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6 border-b pb-4" style={{ borderColor: 'var(--color-border)' }}>
+            <div>
+              <h2 className="text-3xl font-bold" style={{ color: 'var(--text-heading)' }}>
+                Tạo tin đăng mới
+              </h2>
+              <p className="mt-1 text-sm" style={{ color: 'var(--text-body)' }}>
+                Điền thông tin chi tiết, thêm hình ảnh rõ nét để tin của bạn nổi bật hơn trên EVB Marketplace.
+              </p>
+            </div>
+            <div
+              className="hidden md:flex flex-col items-end text-xs"
+              style={{ color: 'var(--text-body)' }}
+            >
+              <span>⚡ Thời gian hoàn tất trung bình: 2–3 phút</span>
+              <span>✅ Tin sẽ được admin duyệt trước khi hiển thị công khai</span>
+            </div>
+          </div>
 
           {error && <div className="error-message mb-4">{error}</div>}
 
-          <form onSubmit={(e) => handleSubmit(e, false)}>
-
-            {/* --- 1. Thông tin cơ bản --- */}
-            <h3 className="text-xl font-semibold mb-4 mt-4 border-t pt-4" style={{ color: 'var(--text-heading)', borderColor: 'var(--color-border)' }}>
-              1. Thông tin cơ bản
-            </h3>
-            <div className="form-group">
-              <label className="form-label" htmlFor="title">Tiêu đề *</label>
-              <input id="title" name="title" type="text" required className="form-input" value={formData.title} onChange={handleChange} placeholder="VD: Vinfast VF8 Plus 2022" />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label" htmlFor="description">Mô tả chi tiết *</label>
-              <textarea id="description" name="description" required className="form-input" rows="5" value={formData.description} onChange={handleChange} placeholder="Mô tả tình trạng xe, lịch sử sử dụng, lý do bán..." />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="form-group">
-
-                {/* === CẬP NHẬT: Thêm nút Gợi ý giá === */}
-                <div className="flex justify-between items-center mb-1">
-                  <label className="form-label" htmlFor="price" style={{ marginBottom: 0 }}>
-                    Giá (VND) *
-                  </label>
-                  <button
-                    type="button"
-                    onClick={handleSuggestPrice}
-                    disabled={suggestingPrice || loading}
-                    className="btn-link"
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      padding: '0.25rem 0.5rem',
-                      color: 'var(--color-primary)',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.25rem',
-                      fontSize: '0.875rem',
-                      opacity: suggestingPrice ? 0.6 : 1
-                    }}
-                  >
-                    <SparkleIcon />
-                    {suggestingPrice ? 'Đang...' : 'Gợi ý giá'}
-                  </button>
+          <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,3fr)_minmax(260px,1fr)] gap-8">
+            {/* Cột trái: Form chính */}
+            <form onSubmit={(e) => handleSubmit(e, false)}>
+              {/* --- 1. Thông tin cơ bản --- */}
+              <section className="mb-6">
+                <div className="flex items-baseline justify-between mb-3">
+                  <h3 className="text-lg font-semibold" style={{ color: 'var(--text-heading)' }}>
+                    1. Thông tin cơ bản
+                  </h3>
+                  <span className="text-xs" style={{ color: 'var(--text-body)' }}>
+                    Các trường có dấu * là bắt buộc
+                  </span>
                 </div>
-                {/* === KẾT THÚC CẬP NHẬT === */}
 
-                <input id="price" name="price" type="number" required className="form-input" value={formData.price} onChange={handleChange} min="0" placeholder="VD: 800000000" />
-              </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="location">Vị trí *</label>
-                <input id="location" name="location" type="text" required className="form-input" value={formData.location} onChange={handleChange} placeholder="VD: Quận 1, TP. HCM" />
-              </div>
-            </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="title">
+                    Tiêu đề *
+                  </label>
+                  <input
+                    id="title"
+                    name="title"
+                    type="text"
+                    required
+                    className="form-input"
+                    value={formData.title}
+                    onChange={handleChange}
+                    placeholder="VD: VinFast VF8 Plus 2022, chạy 20.000km"
+                  />
+                </div>
 
-            {/* --- 2. Hình ảnh (Giữ nguyên) --- */}
-            <h3 className="text-xl font-semibold mb-4 mt-6 border-t pt-4" style={{ color: 'var(--text-heading)', borderColor: 'var(--color-border)' }}>
-              2. Hình ảnh
-            </h3>
-            <div className="form-group">
-              <label className="form-label" htmlFor="images">Ảnh sản phẩm (chọn nhiều ảnh, tối đa 10) *</label>
-              <input
-                id="images"
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleFileChange}
-                className="form-input"
-              />
-              {selectedFiles.length > 0 && (
-                <div className="flex gap-3 mt-4 flex-wrap">
-                  {selectedFiles.map((file, idx) => (
-                    <div key={idx} className="relative">
-                      <img
-                        src={URL.createObjectURL(file)}
-                        alt="Xem trước"
-                        className="w-24 h-24 object-cover border rounded-lg shadow-sm"
-                      />
+                <div className="form-group">
+                  <label className="form-label" htmlFor="description">
+                    Mô tả chi tiết *
+                  </label>
+                  <textarea
+                    id="description"
+                    name="description"
+                    required
+                    className="form-input"
+                    rows="5"
+                    value={formData.description}
+                    onChange={handleChange}
+                    placeholder="Mô tả tình trạng xe/pin, lịch sử sử dụng, bảo dưỡng, phụ kiện đi kèm và lý do bán..."
+                  />
+                  <p className="mt-1 text-xs" style={{ color: 'var(--text-body)' }}>
+                    Gợi ý: nội dung rõ ràng, trung thực sẽ giúp tin được duyệt nhanh hơn và thu hút nhiều người mua.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="form-group">
+                    <div className="flex justify-between items-center mb-1">
+                      <label
+                        className="form-label"
+                        htmlFor="price"
+                        style={{ marginBottom: 0 }}
+                      >
+                        Giá (VND) *
+                      </label>
                       <button
                         type="button"
-                        onClick={() => handleRemoveImage(idx)}
-                        className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold shadow"
+                        onClick={handleSuggestPrice}
+                        disabled={suggestingPrice || loading}
+                        className="btn-secondary"
+                        style={{
+                          borderRadius: '999px',
+                          padding: '0.25rem 0.75rem',
+                          fontSize: '0.75rem',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.25rem',
+                          borderColor: 'transparent',
+                          background: 'var(--bg-muted)',
+                        }}
                       >
-                        &times;
+                        <SparkleIcon />
+                        {suggestingPrice ? 'Đang gợi ý...' : 'Gợi ý giá'}
                       </button>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
 
-            {/* --- 3. Phân loại (Giữ nguyên) --- */}
-            <h3 className="text-xl font-semibold mb-4 mt-6 border-t pt-4" style={{ color: 'var(--text-heading)', borderColor: 'var(--color-border)' }}>
-              3. Phân loại
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="form-group">
-                <label className="form-label" htmlFor="category">Danh mục</label>
-                <select id="category" name="category" className="form-input" value={formData.category} onChange={handleChange}>
-                  <option value="Vehicle">Xe Điện</option>
-                  <option value="Battery">Pin/Ắc Quy</option>
-                  <option value="Other">Linh kiện khác</option>
-                </select>
-              </div>
+                    <input
+                      id="price"
+                      name="price"
+                      type="number"
+                      required
+                      className="form-input"
+                      value={formData.price}
+                      onChange={handleChange}
+                      min="0"
+                      placeholder="VD: 800000000"
+                    />
+                    <p className="mt-1 text-xs" style={{ color: 'var(--text-body)' }}>
+                      Giá niêm yết đã bao gồm các loại phí mà bạn mong muốn (nếu có).
+                    </p>
+                  </div>
 
-              <div className="form-group">
-                <label className="form-label" htmlFor="condition">Tình trạng</label>
-                <select id="condition" name="condition" className="form-input" value={formData.condition} onChange={handleChange}>
-                  <option value="Used">Đã qua sử dụng</option>
-                  <option value="New">Mới</option>
-                  <option value="Refurbished">Đã tân trang</option>
-                </select>
-              </div>
-            </div>
-
-            {/* --- 4. Chi tiết (Giữ nguyên) --- */}
-            <div className="mt-6">
-              {formData.category === 'Vehicle' && (
-                <div className="p-4 rounded-lg" style={{ background: 'var(--bg-muted)', border: '1px solid var(--color-border)' }}>
-                  <h4 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-heading)' }}>Chi tiết Xe</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input name="vehicle_brand" placeholder="Hãng xe (VD: Vinfast)" value={formData.vehicle_brand} onChange={handleChange} className="form-input" />
-                    <input name="vehicle_model" placeholder="Mẫu xe (VD: VF8)" value={formData.vehicle_model} onChange={handleChange} className="form-input" />
-                    <input name="vehicle_manufacturing_year" placeholder="Năm sản xuất" type="number" min="1900" max={new Date().getFullYear()} value={formData.vehicle_manufacturing_year} onChange={handleChange} className="form-input" />
-                    <input name="vehicle_mileage_km" placeholder="Số KM đã đi" type="number" min="0" value={formData.vehicle_mileage_km} onChange={handleChange} className="form-input" />
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="location">
+                      Vị trí *
+                    </label>
+                    <select
+                      id="location"
+                      name="location"
+                      required
+                      className="form-input"
+                      value={formData.location}
+                      onChange={handleChange}
+                      style={{
+                        maxHeight: '220px',
+                        overflowY: 'auto',
+                      }}
+                    >
+                      <option value="">Chọn tỉnh/thành phố</option>
+                      {MERGED_PROVINCES.map((province) => (
+                        <option key={province} value={province}>
+                          {province}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
-              )}
+              </section>
 
-              {formData.category === 'Battery' && (
-                <div className="p-4 rounded-lg" style={{ background: 'var(--bg-muted)', border: '1px solid var(--color-border)' }}>
-                  <h4 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-heading)' }}>Chi tiết Pin</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input name="battery_capacity_kwh" placeholder="Dung lượng (kWh)" type="number" min="0" step="0.1" value={formData.battery_capacity_kwh} onChange={handleChange} className="form-input" />
-                    <input name="battery_condition_percentage" placeholder="Tình trạng Pin (%)" type="number" min="0" max="100" value={formData.battery_condition_percentage} onChange={handleChange} className="form-input" />
+              {/* --- 2. Hình ảnh --- */}
+              <section className="mb-6">
+                <h3
+                  className="text-lg font-semibold mb-3"
+                  style={{ color: 'var(--text-heading)' }}
+                >
+                  2. Hình ảnh sản phẩm
+                </h3>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="images">
+                    Ảnh sản phẩm (chọn nhiều ảnh, tối đa 10) *
+                  </label>
+                  <input
+                    id="images"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleFileChange}
+                    className="form-input"
+                  />
+                  <p className="mt-1 text-xs" style={{ color: 'var(--text-body)' }}>
+                    Nên dùng ảnh thực tế, rõ nét (tối thiểu 3 ảnh) chụp nhiều góc khác nhau của xe/pin.
+                  </p>
+
+                  {selectedFiles.length > 0 && (
+                    <div className="flex gap-3 mt-4 flex-wrap">
+                      {selectedFiles.map((file, idx) => (
+                        <div key={idx} className="relative">
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt="Xem trước"
+                            className="w-24 h-24 object-cover border rounded-lg shadow-sm"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveImage(idx)}
+                            className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold shadow"
+                          >
+                            &times;
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              {/* --- 3. Phân loại --- */}
+              <section className="mb-6">
+                <h3
+                  className="text-lg font-semibold mb-3"
+                  style={{ color: 'var(--text-heading)' }}
+                >
+                  3. Phân loại & tình trạng
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="category">
+                      Danh mục
+                    </label>
+                    <select
+                      id="category"
+                      name="category"
+                      className="form-input"
+                      value={formData.category}
+                      onChange={handleChange}
+                    >
+                      <option value="Vehicle">Xe Điện</option>
+                      <option value="Battery">Pin/Ắc Quy</option>
+                      <option value="Other">Linh kiện khác</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="condition">
+                      Tình trạng
+                    </label>
+                    <select
+                      id="condition"
+                      name="condition"
+                      className="form-input"
+                      value={formData.condition}
+                      onChange={handleChange}
+                    >
+                      <option value="Used">Đã qua sử dụng</option>
+                      <option value="New">Mới</option>
+                      <option value="Refurbished">Đã tân trang</option>
+                    </select>
                   </div>
                 </div>
-              )}
-            </div>
+              </section>
 
-            {/* --- Nút Submit: 2 lựa chọn Đăng tin thường / Đăng tin + Đấu giá --- */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-              <button
-                type="submit"
-                onClick={(e) => handleSubmit(e, false)}
-                disabled={loading || suggestingPrice}
-                className="btn btn-primary flex items-center justify-center"
-                style={{ background: 'var(--color-primary)' }}
-              >
-                {loading && <SpinnerIcon />}
-                {loading ? 'Đang xử lý...' : '🏪 Đăng tin thường'}
-              </button>
+              {/* --- 4. Chi tiết bổ sung --- */}
+              <section className="mb-6">
+                <h3
+                  className="text-lg font-semibold mb-3"
+                  style={{ color: 'var(--text-heading)' }}
+                >
+                  4. Thông số chi tiết
+                </h3>
+                <div className="mt-2">
+                  {formData.category === 'Vehicle' && (
+                    <div
+                      className="p-4 rounded-lg"
+                      style={{
+                        background: 'var(--bg-muted)',
+                        border: '1px solid var(--color-border)',
+                      }}
+                    >
+                      <h4
+                        className="text-sm font-semibold mb-3 uppercase tracking-wide"
+                        style={{ color: 'var(--text-heading)' }}
+                      >
+                        Thông tin xe điện
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input
+                          name="vehicle_brand"
+                          placeholder="Hãng xe (VD: VinFast)"
+                          value={formData.vehicle_brand}
+                          onChange={handleChange}
+                          className="form-input"
+                        />
+                        <input
+                          name="vehicle_model"
+                          placeholder="Mẫu xe (VD: VF8)"
+                          value={formData.vehicle_model}
+                          onChange={handleChange}
+                          className="form-input"
+                        />
+                        <input
+                          name="vehicle_manufacturing_year"
+                          placeholder="Năm sản xuất"
+                          type="number"
+                          min="1900"
+                          max={new Date().getFullYear()}
+                          value={formData.vehicle_manufacturing_year}
+                          onChange={handleChange}
+                          className="form-input"
+                        />
+                        <input
+                          name="vehicle_mileage_km"
+                          placeholder="Số KM đã đi"
+                          type="number"
+                          min="0"
+                          value={formData.vehicle_mileage_km}
+                          onChange={handleChange}
+                          className="form-input"
+                        />
+                      </div>
+                    </div>
+                  )}
 
-              <button
-                type="button"
-                onClick={(e) => handleSubmit(e, true)}
-                disabled={loading || suggestingPrice}
-                className="btn flex items-center justify-center"
+                  {formData.category === 'Battery' && (
+                    <div
+                      className="p-4 rounded-lg"
+                      style={{
+                        background: 'var(--bg-muted)',
+                        border: '1px solid var(--color-border)',
+                      }}
+                    >
+                      <h4
+                        className="text-sm font-semibold mb-3 uppercase tracking-wide"
+                        style={{ color: 'var(--text-heading)' }}
+                      >
+                        Thông tin pin / ắc quy
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input
+                          name="battery_capacity_kwh"
+                          placeholder="Dung lượng (kWh)"
+                          type="number"
+                          min="0"
+                          step="0.1"
+                          value={formData.battery_capacity_kwh}
+                          onChange={handleChange}
+                          className="form-input"
+                        />
+                        <input
+                          name="battery_condition_percentage"
+                          placeholder="Tình trạng Pin (%)"
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={formData.battery_condition_percentage}
+                          onChange={handleChange}
+                          className="form-input"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              {/* Nút Submit */}
+              <div className="pt-2 border-t" style={{ borderColor: 'var(--color-border)' }}>
+                <button
+                  type="submit"
+                  onClick={(e) => handleSubmit(e, false)}
+                  disabled={loading || suggestingPrice}
+                  className="btn btn-primary btn-full flex items-center justify-center"
+                  style={{ background: 'var(--color-primary)' }}
+                >
+                  {loading && <SpinnerIcon />}
+                  {loading ? 'Đang xử lý...' : '🏪 Đăng tin ngay'}
+                </button>
+              </div>
+            </form>
+
+            {/* Cột phải: Tóm tắt & tips */}
+            <aside
+              className="hidden lg:block"
+              style={{
+                alignSelf: 'flex-start',
+                position: 'sticky',
+                top: '6rem',
+              }}
+            >
+              <div
+                className="p-4 rounded-lg mb-4"
                 style={{
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  color: 'white'
+                  background:
+                    'linear-gradient(135deg, #eff6ff 0%, #ecfeff 50%, #fef9c3 100%)',
+                  border: '1px solid var(--color-border)',
                 }}
               >
-                {loading && <SpinnerIcon />}
-                {loading ? 'Đang xử lý...' : '🔨 Đăng tin + Đấu giá'}
-              </button>
-            </div>
-          </form>
+                <h4
+                  className="text-sm font-semibold mb-2"
+                  style={{ color: 'var(--text-heading)' }}
+                >
+                  Tóm tắt nhanh
+                </h4>
+                <ul className="text-xs space-y-1" style={{ color: 'var(--text-body)' }}>
+                  <li>
+                    <strong>Tiêu đề:</strong>{' '}
+                    {formData.title || 'Chưa nhập'}
+                  </li>
+                  <li>
+                    <strong>Giá:</strong>{' '}
+                    {formData.price
+                      ? `${Number(formData.price).toLocaleString('vi-VN')} VND`
+                      : 'Chưa nhập'}
+                  </li>
+                  <li>
+                    <strong>Vị trí:</strong> {formData.location || 'Chưa chọn'}
+                  </li>
+                  <li>
+                    <strong>Danh mục:</strong>{' '}
+                    {formData.category === 'Vehicle'
+                      ? 'Xe Điện'
+                      : formData.category === 'Battery'
+                      ? 'Pin/Ắc Quy'
+                      : 'Linh kiện khác'}
+                  </li>
+                  <li>
+                    <strong>Tình trạng:</strong>{' '}
+                    {formData.condition === 'New'
+                      ? 'Mới'
+                      : formData.condition === 'Refurbished'
+                      ? 'Đã tân trang'
+                      : 'Đã qua sử dụng'}
+                  </li>
+                  <li>
+                    <strong>Ảnh đã chọn:</strong> {selectedFiles.length} / 10
+                  </li>
+                </ul>
+              </div>
+
+              <div
+                className="p-4 rounded-lg"
+                style={{
+                  background: 'var(--bg-muted)',
+                  border: '1px solid var(--color-border)',
+                }}
+              >
+                <h4
+                  className="text-sm font-semibold mb-2"
+                  style={{ color: 'var(--text-heading)' }}
+                >
+                  Mẹo đăng tin hiệu quả
+                </h4>
+                <ul className="list-disc ml-4 text-xs space-y-1" style={{ color: 'var(--text-body)' }}>
+                  <li>Tiêu đề rõ ràng, có năm sản xuất và phiên bản.</li>
+                  <li>Đăng ít nhất 5 ảnh, chụp đủ ngoại thất, nội thất và odo.</li>
+                  <li>Trung thực về tình trạng, nêu rõ lỗi (nếu có).</li>
+                  <li>Chọn đúng khu vực để người mua dễ tìm kiếm.</li>
+                </ul>
+              </div>
+            </aside>
+          </div>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import '../css/HomePage.css';
 
@@ -152,6 +152,7 @@ function HomePage() {
   const [filterOpen, setFilterOpen] = useState(false);
 
   const location = useLocation();
+  const navigate = useNavigate();
 
   const hasActiveFilter =
     filters.location || filters.model || filters.minPrice || filters.maxPrice;
@@ -171,6 +172,8 @@ function HomePage() {
       minPrice: '',
       maxPrice: '',
     });
+    // Đồng thời xóa category trên URL để hiển thị lại toàn bộ tin như các sàn TMĐT
+    navigate('/#product-grid');
   };
 
   const handleToggleFilter = () => {
@@ -308,7 +311,7 @@ function HomePage() {
     revealElements.forEach((element) => observer.observe(element));
 
     return () => observer.disconnect();
-  }, [listings, loading]);
+  }, [listings, loading, filters]);
 
   return (
     <div className="homepage">

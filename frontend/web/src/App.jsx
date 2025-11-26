@@ -138,9 +138,6 @@ function Navigation() {
 
             {/* 2. Các nút bên phải */}
             <div className="nav-links">
-              <Link to="/auctions" className="nav-link">
-                Đấu giá
-              </Link>
               {user ? (
                 // === GIAO DIỆN KHI ĐÃ ĐĂNG NHẬP ===
                 <>

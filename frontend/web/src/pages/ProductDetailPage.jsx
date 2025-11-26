@@ -52,6 +52,15 @@ function ProductDetailPage() {
   const [sellerOrders, setSellerOrders] = useState([]);
   const [showSellerInfo, setShowSellerInfo] = useState(false);
   const [showSellerOrders, setShowSellerOrders] = useState(false);
+  const [reportModal, setReportModal] = useState({
+    isOpen: false,
+    subjectId: null,
+    subjectType: null,
+    contextLabel: '',
+  });
+  const [reportReasonCode, setReportReasonCode] = useState('SPAM');
+  const [reportDetails, setReportDetails] = useState('');
+  const reportReasonInputRef = useRef(null);
 
 
   // === Logic (Toàn bộ logic giữ nguyên) ===
@@ -156,6 +165,12 @@ function ProductDetailPage() {
     fetchAuthorNames();
   }, [reviews]);
 
+  useEffect(() => {
+    if (reportModal.isOpen && reportReasonInputRef.current) {
+      reportReasonInputRef.current.focus();
+    }
+  }, [reportModal.isOpen]);
+
 
   const loadReviews = async () => { /* (Giữ nguyên) */
     try {
@@ -217,17 +232,48 @@ function ProductDetailPage() {
       alert('Lỗi: ' + (err.response?.data?.message || err.message));
     }
   };
-  const handleReport = async () => { /* (Giữ nguyên) */
+  const openReportModal = (subjectId, subjectType, contextLabel) => {
     if (!token) { navigate('/login'); return; }
-    const reasonCode = prompt('Nhập mã lỗi (SPAM, HARASSMENT, OTHER):');
-    if (!reasonCode) return;
-    const details = prompt('Chi tiết báo cáo (optional):');
+    setReportReasonCode('SPAM');
+    setReportDetails('');
+    setReportModal({
+      isOpen: true,
+      subjectId,
+      subjectType,
+      contextLabel,
+    });
+  };
+
+  const closeReportModal = () => {
+    setReportModal(prev => ({ ...prev, isOpen: false }));
+  };
+
+  const handleSubmitReport = async (event) => {
+    if (event && event.preventDefault) {
+      event.preventDefault();
+    }
+    if (!token) { navigate('/login'); return; }
+    if (!reportModal.subjectId || !reportModal.subjectType) return;
+    if (!reportReasonCode || !reportReasonCode.trim()) {
+      alert('Vui lòng chọn hoặc nhập mã lý do báo cáo.');
+      return;
+    }
     try {
-      await api.post('/reports/', { subjectId: id, subjectType: 'LISTING', reasonCode, details });
+      await api.post('/reports/', {
+        subjectId: reportModal.subjectId,
+        subjectType: reportModal.subjectType,
+        reasonCode: reportReasonCode.trim(),
+        details: reportDetails.trim() || undefined,
+      });
+      closeReportModal();
       alert('Báo cáo đã được gửi.');
     } catch (err) {
       alert('Lỗi: ' + (err.response?.data?.message || err.message));
     }
+  };
+
+  const handleReport = () => {
+    openReportModal(id, 'LISTING', 'tin đăng');
   };
   const handleSubmitReview = async () => { /* (Giữ nguyên) */
     if (!token) { navigate('/login'); return; }
@@ -242,17 +288,8 @@ function ProductDetailPage() {
       alert('Lỗi: ' + (err.response?.data?.message || err.message));
     }
   };
-  const handleReportReview = async (reviewId) => { /* (Giữ nguyên) */
-    if (!token) { navigate('/login'); return; }
-    const reasonCode = prompt('Nhập mã lý do báo cáo (SPAM, HARASSMENT, OTHER):');
-    if (!reasonCode) return;
-    const details = prompt('Chi tiết báo cáo (tùy chọn):');
-    try {
-      await api.post('/reports/', { subjectId: reviewId, subjectType: 'REVIEW', reasonCode, details });
-      alert('Báo cáo đã được gửi.');
-    } catch (err) {
-      alert('Lỗi: ' + (err.response?.data?.message || err.message));
-    }
+  const handleReportReview = (reviewId) => {
+    openReportModal(reviewId, 'REVIEW', 'đánh giá');
   };
   const handleDeleteReview = async (reviewId) => { /* (Giữ nguyên) */
     if (!window.confirm('Bạn có chắc muốn xóa đánh giá này?')) return;
@@ -283,17 +320,8 @@ function ProductDetailPage() {
       alert('Lỗi: ' + (err.response?.data?.message || err.message));
     }
   };
-  const handleReportUser = async (userIdToReport) => { /* (Giữ nguyên) */
-    if (!token) { navigate('/login'); return; }
-    const reasonCode = prompt('Nhập mã lý do báo cáo (SPAM, HARASSMENT, OTHER):');
-    if (!reasonCode) return;
-    const details = prompt('Chi tiết báo cáo (tùy chọn):');
-    try {
-      await api.post('/reports/', { subjectId: userIdToReport, subjectType: 'USER', reasonCode, details });
-      alert('Báo cáo người dùng đã được gửi.');
-    } catch (err) {
-      alert('Lỗi: ' + (err.response?.data?.message || err.message));
-    }
+  const handleReportUser = (userIdToReport) => {
+    openReportModal(userIdToReport, 'USER', 'người dùng');
   };
 
 
@@ -374,6 +402,136 @@ function ProductDetailPage() {
   // === NÂNG CẤP: JSX (RENDER) ===
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg-body)' }}>
+      {reportModal.isOpen && (
+        <div
+          className="evb-report-backdrop"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9998,
+          }}
+          onClick={closeReportModal}
+        >
+          <div
+            className="evb-report-modal"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: '480px',
+              width: '92%',
+              background:
+                'linear-gradient(135deg, #ffffff 0%, #f9fafb 30%, #eff6ff 100%)',
+              borderRadius: '18px',
+              boxShadow:
+                '0 22px 55px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(148, 163, 184, 0.35)',
+              padding: '20px 22px 18px',
+              color: '#0f172a',
+            }}
+          >
+            <div className="flex items-start gap-3 mb-3">
+              <div
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '999px',
+                  background:
+                    'radial-gradient(circle at 30% 30%, #fee2e2, #dc2626)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 0 0 2px rgba(254, 226, 226, 0.9)',
+                  color: 'white',
+                  fontSize: 20,
+                  flexShrink: 0,
+                }}
+              >
+                !
+              </div>
+              <div style={{ flex: 1 }}>
+                <h3
+                  className="text-lg font-semibold"
+                  style={{ color: 'var(--text-heading)', marginBottom: 4 }}
+                >
+                  Báo cáo {reportModal.contextLabel || 'nội dung'}
+                </h3>
+                <p
+                  className="text-sm"
+                  style={{ color: 'var(--text-body)', marginBottom: 12 }}
+                >
+                  Hãy chọn lý do phù hợp và mô tả chi tiết (nếu có). Đội ngũ kiểm
+                  duyệt sẽ xem xét trong thời gian sớm nhất.
+                </p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmitReport}>
+              <div className="form-group">
+                <label
+                  htmlFor="report-reason"
+                  className="block text-sm font-medium mb-1"
+                  style={{ color: 'var(--text-heading)' }}
+                >
+                  Mã lý do
+                </label>
+                <select
+                  id="report-reason"
+                  ref={reportReasonInputRef}
+                  className="form-input"
+                  value={reportReasonCode}
+                  onChange={(e) => setReportReasonCode(e.target.value)}
+                  required
+                >
+                  <option value="SPAM">
+                    SPAM - Quảng cáo, nội dung lặp lại, link độc hại
+                  </option>
+                  <option value="HARASSMENT">
+                    HARASSMENT - Quấy rối, xúc phạm, lời nói căm ghét
+                  </option>
+                  <option value="OTHER">OTHER - Lý do khác</option>
+                </select>
+              </div>
+
+              <div className="form-group" style={{ marginTop: '0.9rem' }}>
+                <label
+                  htmlFor="report-details"
+                  className="block text-sm font-medium mb-1"
+                  style={{ color: 'var(--text-heading)' }}
+                >
+                  Chi tiết (tùy chọn)
+                </label>
+                <textarea
+                  id="report-details"
+                  className="form-input"
+                  rows="4"
+                  placeholder="Mô tả thêm về lý do bạn báo cáo để chúng tôi xử lý tốt hơn..."
+                  value={reportDetails}
+                  onChange={(e) => setReportDetails(e.target.value)}
+                  style={{ resize: 'vertical' }}
+                />
+              </div>
+
+              <div
+                className="mt-4 flex justify-end gap-2"
+                style={{ marginTop: '1.1rem', display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}
+              >
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={closeReportModal}
+                >
+                  Hủy
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  Gửi báo cáo
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       <div className="container py-8">
         <button
           onClick={() => navigate(-1)}
